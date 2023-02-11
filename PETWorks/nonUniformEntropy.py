@@ -13,7 +13,7 @@ def _setDataHierarchies(
         data.getDefinition().setAttributeType(attributeName, hierarchy)
 
 
-def _measureNonUniformEnropy(original: Data, anonymized: Data) -> float:
+def _measureNonUniformEntropy(original: Data, anonymized: Data) -> float:
     utility = (
         original.getHandle()
         .getStatistics()
@@ -34,5 +34,5 @@ def PETValidation(original, anonymized, _, dataHierarchy, **other):
     _setDataHierarchies(original, dataHierarchy)
     _setDataHierarchies(anonymized, dataHierarchy)
 
-    nonUniformEntropy = _measureNonUniformEnropy(original, anonymized)
+    nonUniformEntropy = _measureNonUniformEntropy(original, anonymized)
     return {"Non-Uniform Entropy": nonUniformEntropy}

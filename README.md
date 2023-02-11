@@ -107,7 +107,7 @@ report(result, "json")
 
 Execution Result
 ```python
-$ python Non-UniformEntropy.py
+$ python nonUniformEntropy.py
 {
     "Non-Uniform Entropy": 0.6691909578638351
 }
