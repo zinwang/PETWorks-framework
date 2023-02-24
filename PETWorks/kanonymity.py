@@ -1,5 +1,3 @@
-from typing import List
-
 from PETWorks.arx import Data, gateway, loadDataFromCsv
 from PETWorks.attributetypes import QUASI_IDENTIFIER
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets

@@ -135,7 +135,7 @@ $ python aecs.py
 }
 ```
 
-#### Evaluation of the k-anonymity
+#### Computing the k-anonymity
 
 ```python
 from PETWorks import PETValidation, report
