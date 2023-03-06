@@ -164,6 +164,30 @@ $ python3 k-anonymity.py
 ```
 
 
+#### Compute the δ-presence
+```python
+from PETWorks import PETValidation, report
+
+anonymizedData = "data/delta.csv"
+
+subsetIndices = [1, 2, 5, 7, 8]
+
+result = PETValidation(
+        None, anonymizedData, "d-presence", subsetIndices=subsetIndices, dMin=1/2, dMax=2/3
+    )
+report(result, "json")
+```
+
+Execution Result
+```python
+{
+    "dMin": 0.5,
+    "dMax": 0.6666666666666666,
+    "d-presence": true
+}
+```
+
+
 
 ### How it works?
 | Module                    | Description                                                                                                                           |
