@@ -7,7 +7,9 @@ StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
 HashSet = gateway.jvm.java.util.HashSet
 DPresence = gateway.jvm.org.deidentifier.arx.criteria.DPresence
-HashGroupifyEntry = gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
+HashGroupifyEntry = (
+    gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
+)
 ARXConfiguration = gateway.jvm.org.deidentifier.arx.ARXConfiguration
 KAnonymity = gateway.jvm.org.deidentifier.arx.criteria.KAnonymity
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
@@ -16,8 +18,7 @@ Int = gateway.jvm.int
 
 
 def _setDataHierarchies(
-    data: Data, hierarchies: dict[str, list[list[str]]],
-    attributeTypes: dict
+    data: Data, hierarchies: dict[str, list[list[str]]], attributeTypes: dict
 ) -> None:
     for attributeName, hierarchy in hierarchies.items():
         data.getDefinition().setAttributeType(attributeName, hierarchy)
@@ -25,11 +26,13 @@ def _setDataHierarchies(
 
         if attributeType == IDENTIFIER:
             data.getDefinition().setAttributeType(
-                    attributeName, AttributeType.IDENTIFYING_ATTRIBUTE)
+                attributeName, AttributeType.IDENTIFYING_ATTRIBUTE
+            )
 
         if attributeType == INSENSITIVE_ATTRIBUTE:
             data.getDefinition().setAttributeType(
-                    attributeName, AttributeType.INSENSITIVE_ATTRIBUTE)
+                attributeName, AttributeType.INSENSITIVE_ATTRIBUTE
+            )
 
 
 def _getQiIndices(dataHandle: str) -> list[int]:
@@ -40,9 +43,7 @@ def _getQiIndices(dataHandle: str) -> list[int]:
     return qiIndices
 
 
-def _isRowSuppressed(
-        table: Data, rowIndex: int
-) -> bool:
+def _isRowSuppressed(table: Data, rowIndex: int) -> bool:
     qiIndices = _getQiIndices(table.getHandle())
     for i in qiIndices:
         if table.getHandle().getValue(rowIndex, i) != "*":
@@ -50,9 +51,7 @@ def _isRowSuppressed(
     return True
 
 
-def _findAnonymousLevel(
-        hier: list[list[str]], value: str
-) -> int:
+def _findAnonymousLevel(hier: list[list[str]], value: str) -> int:
     for i in range(len(hier)):
         for j in range(len(hier[i])):
             if hier[i][j] == value:
@@ -61,8 +60,8 @@ def _findAnonymousLevel(
 
 
 def _getAnonymizedData(
-        originalData: Data, anonymizedSubset: Data,
-        hierarchies: dict[str, list[list[str]]]
+    originalData: Data, anonymizedSubset: Data,
+    hierarchies: dict[str, list[list[str]]]
 ) -> str:
     numDataRows = anonymizedSubset.getHandle().getNumRows()
 
@@ -72,7 +71,7 @@ def _getAnonymizedData(
         if not _isRowSuppressed(anonymizedSubset, i):
             sampleRowIndex = i
             break
-        allSuppressed = (i == numDataRows - 1)
+        allSuppressed = i == numDataRows - 1
 
     qiIndices = _getQiIndices(originalData.getHandle())
 
@@ -97,8 +96,7 @@ def _getAnonymizedData(
     lattice = result.getLattice()
     node = lattice.getNode(anonymousLevels)
 
-    transformedData = result.getOutput(node, True)
-    return transformedData
+    return result.getOutput(node, True)
 
 
 def _getDataFrame(dataHandle: str):
@@ -113,15 +111,13 @@ def _getDataFrame(dataHandle: str):
             row.append(dataHandle.getValue(i, column))
         data.append(row)
 
-    dataFrame = pd.DataFrame(data, columns=qis)
-    return dataFrame
+    return pd.DataFrame(data, columns=qis)
 
 
 def _measureDPresence(
     dataHandle: str, subset: Data,
     dMin: float, dMax: float
 ) -> bool:
-
     qisObject = dataHandle.getDefinition().getQuasiIdentifyingAttributes()
     qis = []
     for qi in qisObject:
