@@ -95,20 +95,18 @@ def _getAnonymizedData(
 
     qiIndices = _getQiIndices(originalData.getHandle())
 
-    anonymousLevels = []
-    for index in qiIndices:
+    anonymousLevels = gateway.new_array(Int, len(qiIndices))
+    for i in range(len(qiIndices)):
+        index = qiIndices[i]
         value = anonymizedSubset.getHandle().getValue(sampleRowIndex, index)
         attributeName = anonymizedSubset.getHandle().getAttributeName(index)
         hierarchy = hierarchies[attributeName].getHierarchy()
 
         if allSuppressed:
-            anonymousLevels.append(hierarchy[0].length)
-        else:
-            anonymousLevels.append(_findAnonymousLevel(hierarchy, value))
+            anonymousLevels[i] = hierarchy[0].length
+            continue
 
-    levelArray = gateway.new_array(Int, len(qiIndices))
-    for j in range(len(levelArray)):
-        levelArray[j] = anonymousLevels[j]
+        anonymousLevels[i] = _findAnonymousLevel(hierarchy, value)
 
     arxconfig = ARXConfiguration.create()
     arxconfig.addPrivacyModel(KAnonymity(1))
@@ -116,7 +114,7 @@ def _getAnonymizedData(
     result = anonymizer.anonymize(originalData, arxconfig)
 
     lattice = result.getLattice()
-    node = lattice.getNode(levelArray)
+    node = lattice.getNode(anonymousLevels)
 
     transformedData = result.getOutput(node, True)
     return transformedData
