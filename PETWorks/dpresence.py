@@ -1,10 +1,9 @@
 from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
 from PETWorks.attributetypes import IDENTIFIER, INSENSITIVE_ATTRIBUTE
 from py4j.java_gateway import set_field
+import pandas as pd
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
-Groupify = gateway.jvm.org.deidentifier.arx.common.Groupify
-TupleWrapper = gateway.jvm.org.deidentifier.arx.common.TupleWrapper
 DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
 HashSet = gateway.jvm.java.util.HashSet
 DPresence = gateway.jvm.org.deidentifier.arx.criteria.DPresence
@@ -13,10 +12,7 @@ ARXConfiguration = gateway.jvm.org.deidentifier.arx.ARXConfiguration
 KAnonymity = gateway.jvm.org.deidentifier.arx.criteria.KAnonymity
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
 AttributeType = gateway.jvm.org.deidentifier.arx.AttributeType
-
 Int = gateway.jvm.int
-String = gateway.jvm.String
-ArrayList = gateway.jvm.java.util.ArrayList
 
 
 def _setDataHierarchies(
@@ -34,21 +30,6 @@ def _setDataHierarchies(
         if attributeType == INSENSITIVE_ATTRIBUTE:
             data.getDefinition().setAttributeType(
                     attributeName, AttributeType.INSENSITIVE_ATTRIBUTE)
-
-
-def _getGroupify(dataHandle: str, indices: list[int]) -> str:
-    numDataRows = dataHandle.getNumRows()
-    groupify = Groupify(numDataRows)
-
-    indicesArray = gateway.new_array(Int, len(indices))
-    for i in range(len(indices)):
-        indicesArray[i] = indices[i]
-
-    for row in range(numDataRows):
-        tuple = TupleWrapper(dataHandle, indicesArray, row)
-        groupify.add(tuple)
-
-    return groupify
 
 
 def _getQiIndices(dataHandle: str) -> list[int]:
@@ -120,58 +101,57 @@ def _getAnonymizedData(
     return transformedData
 
 
-def _compareArray(arrayA, arrayB, qiIndices) -> bool:
-    for index in qiIndices:
-        if arrayA[index] != arrayB[index]:
-            return False
-    return True
+def _getDataFrame(dataHandle: str):
+    qis = dataHandle.getDefinition().getQuasiIdentifyingAttributes()
+    numDataRows = dataHandle.getNumRows()
+
+    data = []
+    for i in range(numDataRows):
+        row = []
+        for qi in qis:
+            column = dataHandle.getColumnIndexOf(qi)
+            row.append(dataHandle.getValue(i, column))
+        data.append(row)
+
+    dataFrame = pd.DataFrame(data, columns=qis)
+    return dataFrame
 
 
 def _measureDPresence(
     dataHandle: str, subset: Data,
     dMin: float, dMax: float
 ) -> bool:
-    numDataRows = dataHandle.getNumRows()
 
-    qiIndices = _getQiIndices(dataHandle)
-    groupedData = _getGroupify(dataHandle, qiIndices)
-    groupedSubset = _getGroupify(subset.getHandle(), qiIndices)
+    qisObject = dataHandle.getDefinition().getQuasiIdentifyingAttributes()
+    qis = []
+    for qi in qisObject:
+        qis.append(qi)
 
-    subsetGroup = groupedSubset.first()
-    while subsetGroup.getElement():
+    groupedData = _getDataFrame(dataHandle).groupby(qis)
+    groupedSubset = _getDataFrame(subset.getHandle()).groupby(qis)
 
+    for _, subsetGroup in groupedSubset:
+        count = 0
         pcount = 0
-        dataGroup = groupedData.first()
-        while dataGroup.getElement():
-            dataRow = dataGroup.getElement().getValues()
-            subsetRow = subsetGroup.getElement().getValues()
-            suppressedRow = ["*"]*len(qiIndices)
 
-            if _compareArray(subsetRow, suppressedRow, qiIndices):
-                pcount = numDataRows
-                break
+        subsetGroupList = subsetGroup.values.tolist()
+        count = len(subsetGroupList)
 
-            if _compareArray(subsetRow, dataRow, qiIndices):
-                pcount = dataGroup.getCount()
-                break
+        for _, dataGroup in groupedData:
+            dataGroupList = dataGroup.values.tolist()
 
-            dataGroup = dataGroup.next()
-            if not dataGroup:
-                break
+            if subsetGroupList[0] == dataGroupList[0]:
+                pcount = len(dataGroup)
 
         dummySubset = DataSubset.create(0, HashSet())
         model = DPresence(dMin, dMax, dummySubset)
         entry = HashGroupifyEntry(None, 0, 0)
 
-        set_field(entry, "count", subsetGroup.getCount())
+        set_field(entry, "count", count)
         set_field(entry, "pcount", pcount)
 
         if not model.isAnonymous(None, entry):
             return False
-
-        subsetGroup = subsetGroup.next()
-        if not subsetGroup:
-            break
 
     return True
 
