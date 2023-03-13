@@ -22,7 +22,7 @@ def _setDataHierarchies(data: Data, attributeType: dict) -> None:
 
 def _measureKAnonymity(anonymized: Data, k: int) -> bool:
 
-    if k > anonymized.getHandle().getNumColumns():
+    if k > anonymized.getHandle().getNumRows():
         return False
 
     anonymizer = ARXAnonymizer()

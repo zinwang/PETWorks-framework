@@ -30,7 +30,7 @@ def PETValidation(recover, origin, tech, **keywordArgs):
     elif tech == "Non-Uniform Entropy":
         return NonUniformEntropy.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "AECS":
-        return AECS.PETValidation(recover, origin, tech)
+        return AECS.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "k-anonymity":
         return KAnonymity.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "d-presence":
