@@ -198,6 +198,45 @@ $ python3 d-presence.py
 ```
 
 
+#### Compute the Profitability
+```python
+from PETWorks import PETValidation, report
+from PETWorks.attributetypes import QUASI_IDENTIFIER, INSENSITIVE_ATTRIBUTE
+
+origin = "data/delta.csv"
+anonymized = "data/delta_anonymized.csv"
+dataHierarchy = "data/delta_hierarchy"
+
+attributeTypes = {
+    "zip": QUASI_IDENTIFIER,
+    "age": QUASI_IDENTIFIER,
+    "nationality": QUASI_IDENTIFIER,
+    "salary-class": INSENSITIVE_ATTRIBUTE
+}
+
+result = PETValidation(
+    origin,
+    anonymized,
+    "profitability",
+    dataHierarchy=dataHierarchy,
+    attributeTypes=attributeTypes,
+    cost=4, gain=300,
+    lost=300, benefit=1200
+)
+report(result, "json")
+```
+
+Execution Result
+```python
+$ python3 profitability.py
+{
+    "adversary's cost": 4,
+    "adversary's gain": 300,
+    "publisher's loss": 300,
+    "publisher's benefit": 1200,
+    "profitability": true
+}
+```
 
 ### How it works?
 | Module                    | Description                                                                                                                           |
