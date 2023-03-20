@@ -220,8 +220,11 @@ result = PETValidation(
     "profitability",
     dataHierarchy=dataHierarchy,
     attributeTypes=attributeTypes,
-    cost=4, gain=300,
-    lost=300, benefit=1200
+    allowAttack=True,
+    cost=4,
+    gain=300,
+    lost=300,
+    benefit=1200
 )
 report(result, "json")
 ```
@@ -230,6 +233,7 @@ Execution Result
 ```python
 $ python3 profitability.py
 {
+    "allow attack": true,
     "adversary's cost": 4,
     "adversary's gain": 300,
     "publisher's loss": 300,

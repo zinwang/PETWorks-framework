@@ -6,16 +6,27 @@ import numpy as np
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
 HashSet = gateway.jvm.java.util.HashSet
-HashGroupifyEntry = gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
+HashGroupifyEntry = (
+    gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
+)
+
 ARXConfiguration = gateway.jvm.org.deidentifier.arx.ARXConfiguration
-ARXCostBenefitConfiguration = gateway.jvm.org.deidentifier.arx.ARXCostBenefitConfiguration
+ARXCostBenefitConfiguration = (
+    gateway.jvm.org.deidentifier.arx.ARXCostBenefitConfiguration
+)
+
 KAnonymity = gateway.jvm.org.deidentifier.arx.criteria.KAnonymity
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
 AttributeType = gateway.jvm.org.deidentifier.arx.AttributeType
 Metric = gateway.jvm.org.deidentifier.arx.metric.Metric
 Int = gateway.jvm.int
 
-ProfitabilityJournalist = gateway.jvm.org.deidentifier.arx.criteria.ProfitabilityJournalist
+ProfitabilityJournalist = (
+    gateway.jvm.org.deidentifier.arx.criteria.ProfitabilityJournalist
+)
+ProfitabilityJournalistNoAttack = (
+    gateway.jvm.org.deidentifier.arx.criteria.ProfitabilityJournalistNoAttack
+)
 
 
 def _setDataHierarchies(
@@ -44,9 +55,7 @@ def _getQiIndices(dataHandle: str) -> list[int]:
     return qiIndices
 
 
-def _findAnonymousLevel(
-        hierarchy: list[list[str]], value: str
-) -> int:
+def _findAnonymousLevel(hierarchy: list[list[str]], value: str) -> int:
     for i in range(len(hierarchy)):
         for j in range(len(hierarchy[i])):
             if hierarchy[i][j] == value:
@@ -55,10 +64,8 @@ def _findAnonymousLevel(
 
 
 def _getAnonymousLevels(
-    anonymizedSubset: Data,
-    hierarchies: dict[str, list[list[str]]]
+    anonymizedSubset: Data, hierarchies: dict[str, list[list[str]]]
 ) -> list[int]:
-
     subsetDataFrame = _getDataFrame(anonymizedSubset.getHandle())
     subsetRowNum, subsetColNum = subsetDataFrame.shape
 
@@ -90,7 +97,7 @@ def _getAnonymousLevels(
         hierarchy = hierarchies[attributeName].getHierarchy()
 
         if allSuppressed:
-            anonymousLevels.append(len(hierarchy[index])-1)
+            anonymousLevels.append(len(hierarchy[index]) - 1)
             continue
 
         anonymousLevels.append(_findAnonymousLevel(hierarchy, value))
@@ -118,10 +125,9 @@ def _getDataFrame(dataHandle: str) -> pd.DataFrame:
 
 
 def _getSubsetIndices(
-    table: str, subset: str,
-    hierarchies: dict[str, list[list[str]]],
+    table: str,
+    subset: str,
 ) -> list[int]:
-
     qiNames = table.getDefinition().getQuasiIdentifyingAttributes()
     qis = [qi for qi in qiNames]
     qiIndices = _getQiIndices(table)
@@ -133,7 +139,6 @@ def _getSubsetIndices(
 
     subsetIndices = []
     for _, subsetGroup in groupedSubset:
-
         subsetGroupList = subsetGroup.values.tolist()
         filter = pd.Series(True, index=range(tableRowNum))
         for i in range(len(qiIndices)):
@@ -146,17 +151,15 @@ def _getSubsetIndices(
     return subsetIndices
 
 
-def _getAnonymousData(
-        original: Data, anonymousLevels: list[int]
-) -> str:
+def _getAnonymousData(original: Data, anonymousLevels: list[int]) -> str:
     levels = gateway.new_array(Int, len(anonymousLevels))
     for i in range(len(anonymousLevels)):
         levels[i] = anonymousLevels[i]
 
-    arxconfig = ARXConfiguration.create()
-    arxconfig.addPrivacyModel(KAnonymity(1))
+    arxConfig = ARXConfiguration.create()
+    arxConfig.addPrivacyModel(KAnonymity(1))
     anonymizer = ARXAnonymizer()
-    result = anonymizer.anonymize(original, arxconfig)
+    result = anonymizer.anonymize(original, arxConfig)
 
     lattice = result.getLattice()
     node = lattice.getNode(levels)
@@ -165,12 +168,15 @@ def _getAnonymousData(
 
 
 def _measureProfitability(
-    original: Data, subsetIndices: list[int],
+    original: Data,
+    subsetIndices: list[int],
     anonymousLevels: list[int],
-    hierarchies: dict[str, list[list[str]]],
-    argumemts: dict
+    allowAttack: bool,
+    cost: float,
+    gain: float,
+    lost: float,
+    benefit: float,
 ) -> bool:
-
     indices = HashSet()
     for index in subsetIndices:
         indices.add(index)
@@ -179,21 +185,26 @@ def _measureProfitability(
     original.getHandle().release()
 
     config = ARXCostBenefitConfiguration.create()
-    config.setAdversaryCost(float(argumemts["cost"]))
-    config.setAdversaryGain(float(argumemts["gain"]))
-    config.setPublisherLoss(float(argumemts["lost"]))
-    config.setPublisherBenefit(float(argumemts["benefit"]))
+    config.setAdversaryCost(float(cost))
+    config.setAdversaryGain(float(gain))
+    config.setPublisherLoss(float(lost))
+    config.setPublisherBenefit(float(benefit))
 
-    arxconfig = ARXConfiguration.create()
-    arxconfig.setCostBenefitConfiguration(config)
+    arxConfig = ARXConfiguration.create()
+    arxConfig.setCostBenefitConfiguration(config)
+    arxConfig.setQualityModel(Metric.createPublisherPayoutMetric(False))
 
-    arxconfig.setQualityModel(Metric.createPublisherPayoutMetric(False))
-    arxconfig.addPrivacyModel(ProfitabilityJournalist(subset))
-    arxconfig.setAlgorithm(
+    if allowAttack:
+        profitabilityModel = ProfitabilityJournalist(subset)
+    else:
+        profitabilityModel = ProfitabilityJournalistNoAttack(subset)
+
+    arxConfig.addPrivacyModel(profitabilityModel)
+    arxConfig.setAlgorithm(
             ARXConfiguration.AnonymizationAlgorithm.BEST_EFFORT_TOP_DOWN)
 
     anonymizer = ARXAnonymizer()
-    result = anonymizer.anonymize(original, arxconfig)
+    result = anonymizer.anonymize(original, arxConfig)
 
     levels = gateway.new_array(Int, len(anonymousLevels))
     for i in range(len(anonymousLevels)):
@@ -206,33 +217,41 @@ def _measureProfitability(
     return anonymity == "ANONYMOUS"
 
 
-def PETValidation(original, subset, _, dataHierarchy, **other):
-    cost = other["cost"]
-    gain = other["gain"]
-    lost = other["lost"]
-    benefit = other["benefit"]
-    attributeType = other.get("attributeTypes", None)
-
+def PETValidation(
+    original,
+    subset,
+    tech,
+    dataHierarchy,
+    attributeTypes,
+    allowAttack,
+    cost,
+    gain,
+    lost,
+    benefit,
+    **other
+):
     dataHierarchy = loadDataHierarchy(
-        dataHierarchy, StandardCharsets.UTF_8, ";"
-    )
+            dataHierarchy, StandardCharsets.UTF_8, ";")
     original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
     subset = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
 
-    _setDataHierarchies(original, dataHierarchy, attributeType)
-    _setDataHierarchies(subset, dataHierarchy, attributeType)
+    _setDataHierarchies(original, dataHierarchy, attributeTypes)
+    _setDataHierarchies(subset, dataHierarchy, attributeTypes)
 
     anonymousLevels = _getAnonymousLevels(subset, dataHierarchy)
     anonymizedData = _getAnonymousData(original, anonymousLevels)
 
-    subsetIndices = _getSubsetIndices(
-            anonymizedData, subset.getHandle(), dataHierarchy)
+    subsetIndices = _getSubsetIndices(anonymizedData, subset.getHandle())
 
     profitability = _measureProfitability(
-            original, subsetIndices, anonymousLevels, dataHierarchy, other)
+        original, subsetIndices, anonymousLevels, allowAttack, cost, gain, lost, benefit
+    )
 
-    return {"adversary's cost": cost,
-            "adversary's gain": gain,
-            "publisher's loss": lost,
-            "publisher's benefit": benefit,
-            "profitability": profitability}
+    return {
+        "allow attack": allowAttack,
+        "adversary's cost": cost,
+        "adversary's gain": gain,
+        "publisher's loss": lost,
+        "publisher's benefit": benefit,
+        "profitability": profitability,
+    }
