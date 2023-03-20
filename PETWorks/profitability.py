@@ -146,7 +146,7 @@ def _getSubsetIndices(
             qiIndex = qiIndices[i]
             filter &= tableDataFrame[qiName] == subsetGroupList[0][qiIndex]
 
-        subsetIndices += np.flatnonzero(filter).tolist()[:len(subsetGroupList)]
+        subsetIndices += np.flatnonzero(filter).tolist()[: len(subsetGroupList)]
 
     return subsetIndices
 
@@ -172,10 +172,10 @@ def _measureProfitability(
     subsetIndices: list[int],
     anonymousLevels: list[int],
     allowAttack: bool,
-    cost: float,
-    gain: float,
-    lost: float,
-    benefit: float,
+    adversaryCost: float,
+    adversaryGain: float,
+    publisherLost: float,
+    publisherBenefit: float,
 ) -> bool:
     indices = HashSet()
     for index in subsetIndices:
@@ -185,10 +185,10 @@ def _measureProfitability(
     original.getHandle().release()
 
     config = ARXCostBenefitConfiguration.create()
-    config.setAdversaryCost(float(cost))
-    config.setAdversaryGain(float(gain))
-    config.setPublisherLoss(float(lost))
-    config.setPublisherBenefit(float(benefit))
+    config.setAdversaryCost(adversaryCost)
+    config.setAdversaryGain(adversaryGain)
+    config.setPublisherLoss(publisherLost)
+    config.setPublisherBenefit(publisherBenefit)
 
     arxConfig = ARXConfiguration.create()
     arxConfig.setCostBenefitConfiguration(config)
@@ -201,7 +201,8 @@ def _measureProfitability(
 
     arxConfig.addPrivacyModel(profitabilityModel)
     arxConfig.setAlgorithm(
-            ARXConfiguration.AnonymizationAlgorithm.BEST_EFFORT_TOP_DOWN)
+        ARXConfiguration.AnonymizationAlgorithm.BEST_EFFORT_TOP_DOWN
+    )
 
     anonymizer = ARXAnonymizer()
     result = anonymizer.anonymize(original, arxConfig)
@@ -224,14 +225,14 @@ def PETValidation(
     dataHierarchy,
     attributeTypes,
     allowAttack,
-    cost,
-    gain,
-    lost,
-    benefit,
-    **other
+    adversaryCost,
+    adversaryGain,
+    publisherLost,
+    publisherBenefit,
 ):
     dataHierarchy = loadDataHierarchy(
-            dataHierarchy, StandardCharsets.UTF_8, ";")
+        dataHierarchy, StandardCharsets.UTF_8, ";"
+    )
     original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
     subset = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
 
@@ -244,14 +245,21 @@ def PETValidation(
     subsetIndices = _getSubsetIndices(anonymizedData, subset.getHandle())
 
     profitability = _measureProfitability(
-        original, subsetIndices, anonymousLevels, allowAttack, cost, gain, lost, benefit
+        original,
+        subsetIndices,
+        anonymousLevels,
+        allowAttack,
+        float(adversaryCost),
+        float(adversaryGain),
+        float(publisherLost),
+        float(publisherBenefit),
     )
 
     return {
         "allow attack": allowAttack,
-        "adversary's cost": cost,
-        "adversary's gain": gain,
-        "publisher's loss": lost,
-        "publisher's benefit": benefit,
+        "adversary's cost": adversaryCost,
+        "adversary's gain": adversaryGain,
+        "publisher's loss": publisherLost,
+        "publisher's benefit": publisherBenefit,
         "profitability": profitability,
     }

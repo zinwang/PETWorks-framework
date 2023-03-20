@@ -221,10 +221,10 @@ result = PETValidation(
     dataHierarchy=dataHierarchy,
     attributeTypes=attributeTypes,
     allowAttack=True,
-    cost=4,
-    gain=300,
-    lost=300,
-    benefit=1200
+    adversaryCost=4,
+    adversaryGain=300,
+    publisherLost=300,
+    publisherBenefit=1200
 )
 report(result, "json")
 ```
