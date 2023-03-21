@@ -95,7 +95,7 @@ def getAnonymousLevels(
     anonymizedSubset: Data, hierarchies: dict[str, list[list[str]]]
 ) -> list[int]:
     subsetDataFrame = getDataFrame(anonymizedSubset.getHandle())
-    subsetRowNum, subsetColNum = subsetDataFrame.shape
+    subsetRowNum = len(subsetDataFrame)
 
     qiIndices = getQiIndices(anonymizedSubset.getHandle())
 
