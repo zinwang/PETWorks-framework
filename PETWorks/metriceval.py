@@ -51,8 +51,7 @@ def _evaluteUtility(originalData: Data, anonymizedData: Data) -> Utility:
     return utility
 
 
-def _evaluteKAnonymity(data: Data, qiNames: list[str]) -> int:
-    dataFrame = getDataFrame(data)
+def _evaluteKAnonymity(dataFrame: pd.DataFrame, qiNames: list[str]) -> int:
     groupedData = dataFrame.groupby(qiNames)
 
     minSize = len(dataFrame)
@@ -68,6 +67,7 @@ def _evaluteKAnonymity(data: Data, qiNames: list[str]) -> int:
 def _evaluteDPresence(
     originalData: Data,
     anonymizedSubset: Data,
+    anonymizedSubsetDataFrame: pd.DataFrame,
     attributeTypes: dict[str, str],
     qiNames: list[str],
     config: Config,
@@ -89,7 +89,7 @@ def _evaluteDPresence(
 
     qiIndices = getQiIndices(anonymizedData)
     groupedData = getDataFrame(anonymizedData).groupby(qiNames)
-    groupedSubset = getDataFrame(anonymizedSubset).groupby(qiNames)
+    groupedSubset = anonymizedSubsetDataFrame.groupby(qiNames)
 
     deltaValues = []
     for _, subsetGroup in groupedSubset:
@@ -119,6 +119,7 @@ def _evaluteDPresence(
 def _evalutePrivacy(
     originalData: Data,
     anonymizedData: Data,
+    anonymizedDataFrame: pd.DataFrame,
     attributeTypes: dict[str, str],
     config: Config,
     levels: list[int],
@@ -126,10 +127,11 @@ def _evalutePrivacy(
 ) -> Privacy:
     qiNames = getQiNames(anonymizedData)
     privacy = Privacy()
-    privacy.kAnonymity = _evaluteKAnonymity(anonymizedData, qiNames)
+    privacy.kAnonymity = _evaluteKAnonymity(anonymizedDataFrame, qiNames)
     privacy.dPresence = _evaluteDPresence(
         originalData,
         anonymizedData,
+        anonymizedDataFrame,
         attributeTypes,
         qiNames,
         config,
@@ -178,18 +180,21 @@ def _evaluateMetricsForAnonymizedData(
         levels.append(transformation[index])
 
     metrics = Metrics()
+    anonymizedDataFrame = getDataFrame(anonymizedData)
     metrics.levels = levels
     metrics.utility = _evaluteUtility(originalData, anonymizedData)
     metrics.privacy = _evalutePrivacy(
         originalData,
         anonymizedData,
+        anonymizedDataFrame,
         attributeTypes,
         config,
         levels,
         javaApi
     )
     metrics.config = config
-    metrics.anonymizedData = getDataFrame(anonymizedData)
+    metrics.anonymizedData = anonymizedDataFrame
+
 
     return metrics
 
@@ -279,7 +284,6 @@ def evaluateMetrics(
         asyncResults.append(result)
 
     pool.close()
-    # pool.join()
 
     finalResults = []
     for asyncResult in tqdm(asyncResults, file=sys.stdout):

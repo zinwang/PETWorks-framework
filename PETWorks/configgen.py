@@ -188,15 +188,11 @@ def genHierarchies(
 
     possibleCombinations = product(*hierarchiesForEachQi)
 
-#    hierarchies = []
     for combination in possibleCombinations:
         yield dict(
             (qiName, qiUniqueValues)
             for qiName, qiUniqueValues in combination)
 
-#        hierarchies.append(hierarchy)
-
-#    return hierarchies
 
 
 def genSuppressionRates(
@@ -225,16 +221,10 @@ def _combineParameters(
     kValues: list[int]
 ) -> list[Config]:
     combinations = product(hierarchiesList, suppressionRates, kValues)
-#    configs = []
+
     for combination in tqdm(combinations, file=sys.stdout):
         yield Config(combination[0], combination[1], combination[2])
-        """
-        config.hierarchies = combination[0]
-        config.suppressionRate = combination[1]
-        config.k = combination[2]
-        configs.append(config)
-        """
-#    return configs
+
 
 
 def generateConfigs(
