@@ -39,7 +39,7 @@ def autoTune(
             qiNames.append(qiName)
 
     configs = generateConfigs(originalData, qiNames)
-
+    configs = configs[:0]
     metricsList = evaluateMetrics(
         originalData,
         attributeTypes,

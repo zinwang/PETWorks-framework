@@ -223,15 +223,16 @@ def _combineParameters(
     kValues: list[int]
 ) -> list[Config]:
     combinations = product(hierarchiesList, suppressionRates, kValues)
-    configs = []
+#    configs = []
     for combination in combinations:
-        config = Config()
+        yield Config(combination[0], combination[1], combination[2])
+        """
         config.hierarchies = combination[0]
         config.suppressionRate = combination[1]
         config.k = combination[2]
         configs.append(config)
-
-    return configs
+        """
+#    return configs
 
 
 def generateConfigs(
