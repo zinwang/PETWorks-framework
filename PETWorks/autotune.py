@@ -38,8 +38,10 @@ def autoTune(
         if attributeType == QUASI_IDENTIFIER:
             qiNames.append(qiName)
 
+    print("Generating parameter combinations...")
     configs = generateConfigs(originalData, qiNames)
 
+    print("Evaluate metricses...")
     metricsList = evaluateMetrics(
         originalData,
         attributeTypes,
@@ -47,7 +49,7 @@ def autoTune(
         numOfProcess
     )
 
+    print("Validate metricses...")
     result = validateMetrics(originalData, metricsList, analyzingFunction, error)
     return _toOutputFormat(result)
 
-    return

@@ -4,6 +4,8 @@ from PETWorks.arx import applyAnonymousLevels, anonymizeData, Py4JJavaError
 from PETWorks.arx import JavaApi, javaApiTable, packArxData, packArxHierarchies
 from PETWorks.arx import Hierarchy, ARXResult
 from PETWorks.configgen import Config
+from tqdm import tqdm 
+import sys
 
 from dataclasses import dataclass, field
 import pandas as pd
@@ -277,12 +279,11 @@ def evaluateMetrics(
         asyncResults.append(result)
 
     pool.close()
-    pool.join()
+    # pool.join()
 
     finalResults = []
-    for asyncResult in asyncResults:
+    for asyncResult in tqdm(asyncResults, file=sys.stdout):
         finalResults += asyncResult.get()
-
 
     return finalResults
 
