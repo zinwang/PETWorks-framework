@@ -15,7 +15,6 @@ gateway = JavaGateway.launch_gateway(
     classpath=PATH_TO_ARX_LIBRARY, die_on_exit=True
 )
 
-
 Data = gateway.jvm.org.deidentifier.arx.Data
 Charset = gateway.jvm.java.nio.charset.Charset
 CSVHierarchyInput = gateway.jvm.org.deidentifier.arx.io.CSVHierarchyInput
@@ -230,7 +229,7 @@ def packArxData(
     colNameData = javaApi.new_array(javaApi.String, colNum)
     colNames = data.columns.values.tolist()
     for colIndex in range(colNum):
-        colNameData[colIndex] =colNames[colIndex]
+        colNameData[colIndex] = colNames[colIndex]
     arxData.add(colNameData)
 
     for rowIndex in range(rowNum):
