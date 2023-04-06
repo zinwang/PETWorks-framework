@@ -1,14 +1,17 @@
 from PETWorks.metriceval import Metrics
 from PETWorks.arx import getDataFrame, Data
+from tqdm import tqdm
 
 from typing import Callable
+
+import sys
 
 def validate(metricsList: list[Metrics]) -> Metrics:
     bestMetrics = None
     bestPrivacyScore = float('-inf')
     bestUtilityScore = float('inf')
 
-    for metrics in metricsList:
+    for metrics in tqdm(metricsList, file=sys.stdout):
         kAnonymityScore = metrics.privacy.kAnonymity
         dPresenceScore = 1 - metrics.privacy.dPresence
 

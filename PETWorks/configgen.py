@@ -3,6 +3,8 @@ from itertools import product
 import numpy as np
 from PETWorks.arx import gateway,Data
 from PETWorks.arx import getDataFrame
+from tqdm import tqdm
+import sys
 
 
 Hierarchy = gateway.jvm.org.deidentifier.arx.AttributeType.Hierarchy
@@ -224,7 +226,7 @@ def _combineParameters(
 ) -> list[Config]:
     combinations = product(hierarchiesList, suppressionRates, kValues)
 #    configs = []
-    for combination in combinations:
+    for combination in tqdm(combinations, file=sys.stdout):
         yield Config(combination[0], combination[1], combination[2])
         """
         config.hierarchies = combination[0]
