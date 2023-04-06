@@ -11,9 +11,9 @@ Str = gateway.jvm.java.lang.String
 
 @dataclass
 class Config:
-    hierarchies: dict[str, list[list[str]]] = field(init=False)
-    suppressionRate: float = field(init=False)
-    k: int = field(init=False)
+    hierarchies: dict[str, list[list[str]]] = field(init=True)
+    suppressionRate: float = field(init=True)
+    k: int = field(init=True)
 
 
 def _enumerateClusters(
