@@ -40,8 +40,8 @@ def autoTune(
 
     print("Generating parameter combinations...")
     configs = generateConfigs(originalData, qiNames)
-
     print("Evaluate metricses...")
+    configs = configs[:0]
     metricsList = evaluateMetrics(
         originalData,
         attributeTypes,
