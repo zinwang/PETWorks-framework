@@ -115,7 +115,12 @@ def _assignHierarchyValue(
     qiUniqueValues: list[str],
 ) -> np.chararray:
 
-    isNumeralData = bool(float(qiUniqueValues[0]))
+    try:
+        float(qiUniqueValues[0])
+        isNumeralData = True
+    except ValueError:
+        isNumeralData = False
+
     rowNum, columnNum = hierarchy.shape
 
     firstColumn = np.array(qiUniqueValues, dtype=object)

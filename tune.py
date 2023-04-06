@@ -8,7 +8,7 @@ originalData = "data/adult10.csv"
 
 
 attributeTypes = {
-    "zip": QUASI_IDENTIFIER,
+    "sex": QUASI_IDENTIFIER,
     "age": QUASI_IDENTIFIER,
     "race": QUASI_IDENTIFIER,
     "marital-status": QUASI_IDENTIFIER,
