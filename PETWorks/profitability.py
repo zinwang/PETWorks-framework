@@ -1,6 +1,7 @@
 from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
 from PETWorks.arx import setDataHierarchies, getSubsetIndices
 from PETWorks.arx import getAnonymousLevels, applyAnonymousLevels
+from PETWorks.arx import JavaApi, javaApiTable
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
@@ -87,19 +88,21 @@ def PETValidation(
     publisherLost,
     publisherBenefit,
 ):
+    javaApi = JavaApi(gateway, javaApiTable)
     dataHierarchy = loadDataHierarchy(
-        dataHierarchy, StandardCharsets.UTF_8, ";"
+        dataHierarchy, StandardCharsets.UTF_8, ";", javaApi
     )
-    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
-    subset = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
+    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";", javaApi)
+    subset = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";", javaApi)
 
-    setDataHierarchies(original, dataHierarchy, attributeTypes)
-    setDataHierarchies(subset, dataHierarchy, attributeTypes)
+    setDataHierarchies(original, dataHierarchy, attributeTypes, javaApi)
+    setDataHierarchies(subset, dataHierarchy, attributeTypes, javaApi)
 
     anonymousLevels = getAnonymousLevels(subset, dataHierarchy)
-    anonymizedData = applyAnonymousLevels(original, anonymousLevels)
+    anonymizedData = applyAnonymousLevels(
+            original, anonymousLevels, dataHierarchy, attributeTypes, javaApi)
 
-    subsetIndices = getSubsetIndices(anonymizedData, subset.getHandle())
+    subsetIndices = getSubsetIndices(anonymizedData, subset)
 
     isProfitable = _measureProfitability(
         original,

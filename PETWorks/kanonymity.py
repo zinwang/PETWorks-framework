@@ -1,5 +1,7 @@
 from PETWorks.arx import Data, gateway, loadDataFromCsv
 from PETWorks.attributetypes import QUASI_IDENTIFIER
+from PETWorks.arx import JavaApi, javaApiTable
+
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
 ARXConfiguration = gateway.jvm.org.deidentifier.arx.ARXConfiguration
@@ -38,7 +40,8 @@ def PETValidation(foo, anonymized, bar, **other):
     k = other["k"]
     attributeType = other.get("attributeTypes", None)
 
-    anonymized = loadDataFromCsv(anonymized, StandardCharsets.UTF_8, ";")
+    javaAPi = JavaApi(gateway, javaApiTable)
+    anonymized = loadDataFromCsv(anonymized, StandardCharsets.UTF_8, ";", javaAPi)
 
     _setDataHierarchies(anonymized, attributeType)
 

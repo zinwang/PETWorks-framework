@@ -1,6 +1,7 @@
 from typing import List
 
 from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
+from PETWorks.arx import JavaApi, javaApiTable
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 Hierarchy = gateway.jvm.org.deidentifier.arx.AttributeType.Hierarchy
@@ -24,12 +25,14 @@ def _measureNonUniformEntropy(original: Data, anonymized: Data) -> float:
 
 
 def PETValidation(original, anonymized, _, dataHierarchy, **other):
+    javaApi = JavaApi(gateway, javaApiTable)
+
     dataHierarchy = loadDataHierarchy(
-        dataHierarchy, StandardCharsets.UTF_8, ";"
+        dataHierarchy, StandardCharsets.UTF_8, ";", javaApi
     )
 
-    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
-    anonymized = loadDataFromCsv(anonymized, StandardCharsets.UTF_8, ";")
+    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";", javaApi)
+    anonymized = loadDataFromCsv(anonymized, StandardCharsets.UTF_8, ";", javaApi)
 
     _setDataHierarchies(original, dataHierarchy)
     _setDataHierarchies(anonymized, dataHierarchy)
