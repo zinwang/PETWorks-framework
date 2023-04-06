@@ -6,6 +6,7 @@ from PETWorks.arx import Hierarchy, ARXResult
 from PETWorks.configgen import Config
 from tqdm import tqdm 
 import sys
+import polars as pl
 
 from dataclasses import dataclass, field
 import pandas as pd
@@ -52,16 +53,7 @@ def _evaluteUtility(originalData: Data, anonymizedData: Data) -> Utility:
 
 
 def _evaluteKAnonymity(dataFrame: pd.DataFrame, qiNames: list[str]) -> int:
-    groupedData = dataFrame.groupby(qiNames)
-
-    minSize = len(dataFrame)
-    for _, group in groupedData:
-        groupList = group.values.tolist()
-        count = len(groupList)
-        if count < minSize:
-            minSize = count
-
-    return minSize
+    return dataFrame.groupby(qiNames).count().min().min()
 
 
 def _evaluteDPresence(
