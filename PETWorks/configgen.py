@@ -188,15 +188,15 @@ def genHierarchies(
 
     possibleCombinations = product(*hierarchiesForEachQi)
 
-    hierarchies = []
+#    hierarchies = []
     for combination in possibleCombinations:
-        hierarchy = dict(
+        yield dict(
             (qiName, qiUniqueValues)
             for qiName, qiUniqueValues in combination)
 
-        hierarchies.append(hierarchy)
+#        hierarchies.append(hierarchy)
 
-    return hierarchies
+#    return hierarchies
 
 
 def genSuppressionRates(
