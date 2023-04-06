@@ -229,6 +229,7 @@ def _combineParameters(
 
 def generateConfigs(
     originalData: Data,
+    hierarchies: dict[str, np.chararray],
     qiNames: list[str]
 ) -> list[Config]:
     originalData = getDataFrame(originalData)
@@ -239,7 +240,8 @@ def generateConfigs(
         qiUniqueValues = originalData[qiName].unique()
         qiInfos[qiName] = qiUniqueValues
 
-    hierarchiesList = genHierarchies(qiInfos)
+    hierarchiesList = [hierarchies]
+    #hierarchiesList = genHierarchies(qiInfos)
     suppressionRatesList = genSuppressionRates(suppressionStep)
     kValues = genKValues(len(qiNames))
 
