@@ -128,7 +128,7 @@ def _computeTCloseness(
     for _, group in anonymizedGroups:
 
         groupDistribution = dict(group[sensitiveAttributeName].value_counts() * 0 + 1 / len(group))
-        if sensitiveHierarchy and 0:
+        if sensitiveHierarchy is not None:
             distance = _computeHierarchicalDistance(
                 dataDistribution, groupDistribution, sensitiveHierarchy)
         else:
@@ -156,7 +156,7 @@ def measureTCloseness(
     except:
         isNumerical = False
 
-    if isNumerical or True:
+    if isNumerical:
         return _computeTCloseness(
             originalData, anonymizedData, sensitiveAttributeName, qiNames, None)
 
