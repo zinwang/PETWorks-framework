@@ -1,7 +1,10 @@
+import pandas as pd
 from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
 from PETWorks.arx import setDataHierarchies, getDataFrame, getQiNames
 from PETWorks.arx import getAnonymousLevels, applyAnonymousLevels
+from PETWorks.attributetypes import QUASI_IDENTIFIER
 from py4j.java_gateway import set_field
+from typing import Dict
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
@@ -11,60 +14,67 @@ HashGroupifyEntry = (
     gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
 )
 
+def measureDPresence(
+    populationTable: pd.DataFrame,
+    sampleTable: pd.DataFrame,
+    attributeTypes: Dict[str, str]
+) -> list[float]:
+    qiNames = [
+        qi for qi, value in attributeTypes.items() if value == QUASI_IDENTIFIER
+    ]
 
-def _measureDPresence(
-    dataHandle: str, subset: Data, dMin: float, dMax: float
+    populationGroups = populationTable.groupby(qiNames).groups
+    sampleGroups = sampleTable.groupby(qiNames).groups
+
+    intersectionGroups = set(populationGroups.keys()).intersection(
+        set(sampleGroups.keys())
+    )
+
+    rawValues = [
+        (
+            float(len(sampleGroups[intersectGroup])),
+            float(len(populationGroups[intersectGroup])),
+        )
+        for intersectGroup in intersectionGroups
+    ]
+
+    deltaValues = [
+        count / pCount for count, pCount in rawValues if pCount != 0
+    ]
+
+    return deltaValues
+
+def validateDPresence(
+    deltaValues: list[float],
+    dMax: float,
+    dMin: float
 ) -> bool:
-    qiNames = getQiNames(dataHandle)
-
-    groupedData = getDataFrame(dataHandle).groupby(qiNames)
-    groupedSubset = getDataFrame(subset.getHandle()).groupby(qiNames)
-
-    for _, subsetGroup in groupedSubset:
-        count = 0
-        pcount = 0
-
-        subsetGroupList = subsetGroup.values.tolist()
-        count = len(subsetGroupList)
-
-        for _, dataGroup in groupedData:
-            dataGroupList = dataGroup.values.tolist()
-
-            if subsetGroupList[0] == dataGroupList[0]:
-                pcount = len(dataGroup)
-
-        dummySubset = DataSubset.create(0, HashSet())
-        model = DPresence(dMin, dMax, dummySubset)
-        entry = HashGroupifyEntry(None, 0, 0)
-
-        set_field(entry, "count", count)
-        set_field(entry, "pcount", pcount)
-
-        if not model.isAnonymous(None, entry):
-            return False
-
-    return True
+    return all(dMax >= value >= dMin for value in deltaValues)
 
 
 def PETValidation(original, subset, _, dataHierarchy, **other):
     dMax = other["dMax"]
     dMin = other["dMin"]
-    attributeType = other.get("attributeTypes", None)
+    attributeTypes = other.get("attributeTypes", None)
 
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, StandardCharsets.UTF_8, ";"
     )
-    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
-    subset = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
+    originalPopulationData = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
+    anonymizedSampleData = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
 
-    setDataHierarchies(original, dataHierarchy, attributeType)
-    setDataHierarchies(subset, dataHierarchy, attributeType)
+    setDataHierarchies(originalPopulationData, dataHierarchy, attributeTypes)
+    setDataHierarchies(anonymizedSampleData, dataHierarchy, attributeTypes)
 
-    anonymousLevels = getAnonymousLevels(subset, dataHierarchy)
-    anonymizedData = applyAnonymousLevels(original, anonymousLevels)
+    anonymousLevels = getAnonymousLevels(anonymizedSampleData, dataHierarchy)
+    anonymizedPopulationDataHandle = applyAnonymousLevels(originalPopulationData, anonymousLevels)
 
-    dPresence = _measureDPresence(anonymizedData, subset, dMin, dMax)
+    populationDataFrame = getDataFrame(anonymizedPopulationDataHandle)
+    sampleDataFrame = getDataFrame(anonymizedSampleData.getHandle())
+
+    deltaValues = measureDPresence(populationDataFrame, sampleDataFrame, attributeTypes)
+    fullFillDPresence = validateDPresence(deltaValues, dMax, dMin)
 
     return {"dMin": dMin,
             "dMax": dMax,
-            "d-presence": dPresence}
+            "d-presence": fullFillDPresence}

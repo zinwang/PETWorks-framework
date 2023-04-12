@@ -4,9 +4,10 @@ import numpy as np
 from os import PathLike, listdir
 from os.path import join
 from typing import List
-from PETWorks.attributetypes import IDENTIFIER, INSENSITIVE_ATTRIBUTE
+from typing import Dict
+from PETWorks.attributetypes import IDENTIFIER, INSENSITIVE_ATTRIBUTE, QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
-from py4j.java_gateway import JavaGateway
+from py4j.java_gateway import JavaGateway, get_field
 
 PATH_TO_ARX_LIBRARY = "arx/lib/libarx-3.9.0.jar"
 gateway = JavaGateway.launch_gateway(
@@ -22,7 +23,6 @@ KAnonymity = gateway.jvm.org.deidentifier.arx.criteria.KAnonymity
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
 AttributeType = gateway.jvm.org.deidentifier.arx.AttributeType
 Int = gateway.jvm.int
-
 
 def loadDataFromCsv(path: PathLike, charset: Charset, delimiter: str) -> Data:
     return Data.create(path, charset, delimiter)
@@ -50,21 +50,44 @@ def loadDataHierarchy(
 
 
 def setDataHierarchies(
-    data: Data, hierarchies: dict[str, list[list[str]]], attributeTypes: dict
-) -> None:
-    for attributeName, hierarchy in hierarchies.items():
-        data.getDefinition().setAttributeType(attributeName, hierarchy)
-        attributeType = attributeTypes.get(attributeName)
-
-        if attributeType == IDENTIFIER:
+    data: Data,
+    hierarchies: Dict[str, Hierarchy],
+    attributeTypes: Dict[str, str],
+    ) -> None:
+    for attributeName, attributeType in attributeTypes.items():
+        if attributeName in hierarchies.keys():
             data.getDefinition().setAttributeType(
-                attributeName, AttributeType.IDENTIFYING_ATTRIBUTE
+                attributeName, hierarchies[attributeName]
             )
 
-        if attributeType == INSENSITIVE_ATTRIBUTE:
+        else:
+            attributeType = attributeTypes.get(attributeName)
+
+            if attributeType == IDENTIFIER:
+                javaAttributeType = (
+                    AttributeType.IDENTIFYING_ATTRIBUTE
+                )
+            elif attributeType == QUASI_IDENTIFIER:
+                javaAttributeType = (
+                    AttributeType.QUASI_IDENTIFYING_ATTRIBUTE
+                )
+            elif attributeType == SENSITIVE_ATTRIBUTE:
+                javaAttributeType = (
+                    AttributeType.INSENSITIVE_ATTRIBUTE
+                )
+            elif attributeType == INSENSITIVE_ATTRIBUTE:
+                javaAttributeType = (
+                    AttributeType.INSENSITIVE_ATTRIBUTE
+                )
+            else:
+                raise ValueError(
+                    f"Unexpected attribute type: {attributeType}"
+                )
+
             data.getDefinition().setAttributeType(
-                attributeName, AttributeType.INSENSITIVE_ATTRIBUTE
+                attributeName, javaAttributeType
             )
+
 
 
 def getQiNames(dataHandle: str) -> list[str]:
@@ -92,7 +115,7 @@ def findAnonymousLevel(hierarchy: list[list[str]], value: str) -> int:
 
 
 def getAnonymousLevels(
-    anonymizedSubset: Data, hierarchies: dict[str, list[list[str]]]
+    anonymizedSubset: Data, hierarchies: dict[str, Hierarchy]
 ) -> list[int]:
     subsetDataFrame = getDataFrame(anonymizedSubset.getHandle())
     subsetRowNum = len(subsetDataFrame)
@@ -176,6 +199,7 @@ def applyAnonymousLevels(original: Data, anonymousLevels: list[int]) -> str:
 
     arxConfig = ARXConfiguration.create()
     arxConfig.addPrivacyModel(KAnonymity(1))
+
     anonymizer = ARXAnonymizer()
     result = anonymizer.anonymize(original, arxConfig)
 
