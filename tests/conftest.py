@@ -9,6 +9,6 @@ DATASET_PATHS = [
 ]
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def DATASET_PATH_ADULT():
     return DATASET_PATHS[0]

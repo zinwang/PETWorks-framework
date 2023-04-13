@@ -13,10 +13,11 @@ HashGroupifyEntry = (
     gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
 )
 
+
 def measureDPresence(
     populationTable: pd.DataFrame,
     sampleTable: pd.DataFrame,
-    attributeTypes: Dict[str, str]
+    attributeTypes: Dict[str, str],
 ) -> list[float]:
     qiNames = [
         qi for qi, value in attributeTypes.items() if value == QUASI_IDENTIFIER
@@ -42,12 +43,14 @@ def measureDPresence(
 
     return deltaValues
 
+
 def validateDPresence(
-    deltaValues: list[float],
-    dMin: float,
-    dMax: float
+    deltaValues: list[float], dMin: float, dMax: float
 ) -> bool:
-    return all(round(dMax, 5) >= round(value, 5) >= round(dMin, 5) for value in deltaValues)
+    return all(
+        round(dMax, 5) >= round(value, 5) >= round(dMin, 5)
+        for value in deltaValues
+    )
 
 
 def PETValidation(original, sample, _, dataHierarchy, **other):
@@ -58,21 +61,26 @@ def PETValidation(original, sample, _, dataHierarchy, **other):
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, StandardCharsets.UTF_8, ";"
     )
-    originalPopulationData = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
+    originalPopulationData = loadDataFromCsv(
+        original, StandardCharsets.UTF_8, ";"
+    )
+
     anonymizedSampleData = loadDataFromCsv(sample, StandardCharsets.UTF_8, ";")
 
     setDataHierarchies(originalPopulationData, dataHierarchy, attributeTypes)
     setDataHierarchies(anonymizedSampleData, dataHierarchy, attributeTypes)
 
     anonymousLevels = getAnonymousLevels(anonymizedSampleData, dataHierarchy)
-    anonymizedPopulationDataHandle = applyAnonymousLevels(originalPopulationData, anonymousLevels)
+    anonymizedPopulationDataHandle = applyAnonymousLevels(
+        originalPopulationData, anonymousLevels
+    )
 
     populationDataFrame = getDataFrame(anonymizedPopulationDataHandle)
     sampleDataFrame = getDataFrame(anonymizedSampleData.getHandle())
 
-    deltaValues = measureDPresence(populationDataFrame, sampleDataFrame, attributeTypes)
+    deltaValues = measureDPresence(
+        populationDataFrame, sampleDataFrame, attributeTypes
+    )
     fullFillDPresence = validateDPresence(deltaValues, dMin, dMax)
 
-    return {"dMin": dMin,
-            "dMax": dMax,
-            "d-presence": fullFillDPresence}
+    return {"dMin": dMin, "dMax": dMax, "d-presence": fullFillDPresence}

@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from os import PathLike, listdir
 from os.path import join
-from typing import List
 from typing import Dict
 from PETWorks.attributetypes import IDENTIFIER, QUASI_IDENTIFIER
 from PETWorks.attributetypes import INSENSITIVE_ATTRIBUTE, SENSITIVE_ATTRIBUTE
@@ -24,6 +23,7 @@ KAnonymity = gateway.jvm.org.deidentifier.arx.criteria.KAnonymity
 ARXAnonymizer = gateway.jvm.org.deidentifier.arx.ARXAnonymizer
 AttributeType = gateway.jvm.org.deidentifier.arx.AttributeType
 Int = gateway.jvm.int
+
 
 def loadDataFromCsv(path: PathLike, charset: Charset, delimiter: str) -> Data:
     return Data.create(path, charset, delimiter)
@@ -54,7 +54,7 @@ def setDataHierarchies(
     data: Data,
     hierarchies: Dict[str, Hierarchy],
     attributeTypes: Dict[str, str],
-    ) -> None:
+) -> None:
     for attributeName, attributeType in attributeTypes.items():
         if attributeName in hierarchies.keys():
             if attributeType == QUASI_IDENTIFIER:
@@ -64,30 +64,21 @@ def setDataHierarchies(
 
         javaAttributeType = None
         if attributeType == IDENTIFIER:
-            javaAttributeType = (
-                AttributeType.IDENTIFYING_ATTRIBUTE
-            )
+            javaAttributeType = AttributeType.IDENTIFYING_ATTRIBUTE
 
         elif attributeType == QUASI_IDENTIFIER:
             pass
         elif attributeType == SENSITIVE_ATTRIBUTE:
-            javaAttributeType = (
-                AttributeType.INSENSITIVE_ATTRIBUTE
-            )
+            javaAttributeType = AttributeType.INSENSITIVE_ATTRIBUTE
         elif attributeType == INSENSITIVE_ATTRIBUTE:
-            javaAttributeType = (
-                AttributeType.INSENSITIVE_ATTRIBUTE
-            )
+            javaAttributeType = AttributeType.INSENSITIVE_ATTRIBUTE
         else:
-            raise ValueError(
-                f"Unexpected attribute type: {attributeType}"
-            )
+            raise ValueError(f"Unexpected attribute type: {attributeType}")
 
         if attributeType != QUASI_IDENTIFIER:
             data.getDefinition().setAttributeType(
                 attributeName, javaAttributeType
             )
-
 
 
 def getQiNames(dataHandle: str) -> list[str]:
@@ -133,7 +124,7 @@ def getAnonymousLevels(
         if sampleRowIndex != -1:
             break
 
-        allSuppressed = (subsetRowIndex == subsetRowNum - 1)
+        allSuppressed = subsetRowIndex == subsetRowNum - 1
 
     anonymousLevels = []
     for qiIndex in qiIndices:
@@ -185,9 +176,11 @@ def getSubsetIndices(
         subsetGroupList = subsetGroup.values.tolist()
         filter = pd.Series(True, index=range(tableRowNum))
         for qiName, qiIndex in zip(qiNames, qiIndices):
-            filter &= (tableDataFrame[qiName] == subsetGroupList[0][qiIndex])
+            filter &= tableDataFrame[qiName] == subsetGroupList[0][qiIndex]
 
-        subsetIndices += np.flatnonzero(filter).tolist()[:len(subsetGroupList)]
+        subsetIndices += np.flatnonzero(filter).tolist()[
+            : len(subsetGroupList)
+        ]
 
     return subsetIndices
 
