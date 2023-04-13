@@ -3,7 +3,6 @@ from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
 from PETWorks.arx import setDataHierarchies, getDataFrame, getQiNames
 from PETWorks.arx import getAnonymousLevels, applyAnonymousLevels
 from PETWorks.attributetypes import QUASI_IDENTIFIER
-from py4j.java_gateway import set_field
 from typing import Dict
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
@@ -22,7 +21,6 @@ def measureDPresence(
     qiNames = [
         qi for qi, value in attributeTypes.items() if value == QUASI_IDENTIFIER
     ]
-
     populationGroups = populationTable.groupby(qiNames).groups
     sampleGroups = sampleTable.groupby(qiNames).groups
 
@@ -46,22 +44,22 @@ def measureDPresence(
 
 def validateDPresence(
     deltaValues: list[float],
-    dMax: float,
-    dMin: float
+    dMin: float,
+    dMax: float
 ) -> bool:
-    return all(dMax >= value >= dMin for value in deltaValues)
+    return all(round(dMax, 5) >= round(value, 5) >= round(dMin, 5) for value in deltaValues)
 
 
-def PETValidation(original, subset, _, dataHierarchy, **other):
-    dMax = other["dMax"]
-    dMin = other["dMin"]
+def PETValidation(original, sample, _, dataHierarchy, **other):
+    dMin = float(other["dMin"])
+    dMax = float(other["dMax"])
     attributeTypes = other.get("attributeTypes", None)
 
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, StandardCharsets.UTF_8, ";"
     )
     originalPopulationData = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
-    anonymizedSampleData = loadDataFromCsv(subset, StandardCharsets.UTF_8, ";")
+    anonymizedSampleData = loadDataFromCsv(sample, StandardCharsets.UTF_8, ";")
 
     setDataHierarchies(originalPopulationData, dataHierarchy, attributeTypes)
     setDataHierarchies(anonymizedSampleData, dataHierarchy, attributeTypes)
@@ -73,7 +71,7 @@ def PETValidation(original, subset, _, dataHierarchy, **other):
     sampleDataFrame = getDataFrame(anonymizedSampleData.getHandle())
 
     deltaValues = measureDPresence(populationDataFrame, sampleDataFrame, attributeTypes)
-    fullFillDPresence = validateDPresence(deltaValues, dMax, dMin)
+    fullFillDPresence = validateDPresence(deltaValues, dMin, dMax)
 
     return {"dMin": dMin,
             "dMax": dMax,
