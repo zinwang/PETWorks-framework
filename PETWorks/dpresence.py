@@ -6,13 +6,6 @@ from PETWorks.attributetypes import QUASI_IDENTIFIER
 from typing import Dict
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
-DataSubset = gateway.jvm.org.deidentifier.arx.DataSubset
-HashSet = gateway.jvm.java.util.HashSet
-DPresence = gateway.jvm.org.deidentifier.arx.criteria.DPresence
-HashGroupifyEntry = (
-    gateway.jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry
-)
-
 
 def measureDPresence(
     populationTable: pd.DataFrame,
