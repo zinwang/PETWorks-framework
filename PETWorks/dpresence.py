@@ -1,6 +1,6 @@
 import pandas as pd
-from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
-from PETWorks.arx import setDataHierarchies, getDataFrame, getQiNames
+from PETWorks.arx import gateway, loadDataFromCsv, loadDataHierarchy
+from PETWorks.arx import setDataHierarchies, getDataFrame
 from PETWorks.arx import getAnonymousLevels, applyAnonymousLevels
 from PETWorks.attributetypes import QUASI_IDENTIFIER
 from typing import Dict
@@ -70,8 +70,8 @@ def PETValidation(
     deltaValues = measureDPresence(
         populationDataFrame, sampleDataFrame, attributeTypes
     )
-    fullfillDPresence = validateDPresence(
+    fulfillDPresence = validateDPresence(
         deltaValues, float(dMin), float(dMax)
     )
 
-    return {"dMin": dMin, "dMax": dMax, "d-presence": fullfillDPresence}
+    return {"dMin": dMin, "dMax": dMax, "d-presence": fulfillDPresence}

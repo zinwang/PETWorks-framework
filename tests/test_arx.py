@@ -1,7 +1,7 @@
 from PETWorks.attributetypes import IDENTIFIER, QUASI_IDENTIFIER
 from PETWorks.attributetypes import INSENSITIVE_ATTRIBUTE, SENSITIVE_ATTRIBUTE
 from PETWorks.arx import loadDataFromCsv, loadDataHierarchy, setDataHierarchies
-from PETWorks.arx import gateway, Data, Hierarchy
+from PETWorks.arx import gateway, Data
 from typing import Dict
 import pytest
 from py4j.java_collections import JavaArray

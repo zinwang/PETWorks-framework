@@ -1,5 +1,5 @@
 from PETWorks.attributetypes import IDENTIFIER, QUASI_IDENTIFIER
-from PETWorks.attributetypes import INSENSITIVE_ATTRIBUTE, SENSITIVE_ATTRIBUTE
+from PETWorks.attributetypes import SENSITIVE_ATTRIBUTE
 from PETWorks.dpresence import (
     measureDPresence,
     validateDPresence,
@@ -52,21 +52,21 @@ def testMeasureDPresence(attributeTypesForPresence):
     assert set(deltaValues) == {1 / 2, 2 / 3}
 
 
-def testValidateDPresenceFullfilled():
+def testValidateDPresenceFulfilled():
     dMin = 1 / 2
     dMax = 2 / 3
     dValues = [0.51, 0.56666, 0.6666666666666666]
     assert validateDPresence(dValues, dMin, dMax) is True
 
 
-def testValidateDPresenceNotFullfilled():
+def testValidateDPresenceNotFulfilled():
     dMin = 1 / 2
     dMax = 2 / 3
     dValues = [0.2, 0.7]
     assert validateDPresence(dValues, dMin, dMax) is False
 
 
-def testPETValidationFullfilled(attributeTypesForPresence):
+def testPETValidationFulfilled(attributeTypesForPresence):
     result = PETValidation(
         ORIGINAL_POPULATION_DATA_PATH,
         ANONYMIZED_SAMPLE_DATA_PATH,
@@ -81,7 +81,7 @@ def testPETValidationFullfilled(attributeTypesForPresence):
     assert result["d-presence"] is True
 
 
-def testPETValidationNotFullfilled(attributeTypesForPresence):
+def testPETValidationNotFulfilled(attributeTypesForPresence):
     result = PETValidation(
         ORIGINAL_POPULATION_DATA_PATH,
         ANONYMIZED_SAMPLE_DATA_PATH,
