@@ -94,7 +94,6 @@ def getQiIndices(dataHandle: str) -> list[int]:
 
 
 def findAnonymousLevel(hierarchy: JavaArray, value: str) -> int:
-
     for hierarchyRow in hierarchy:
         for level in range(len(hierarchyRow)):
             if hierarchyRow[level] == value:
