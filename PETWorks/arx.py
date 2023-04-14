@@ -8,6 +8,7 @@ from PETWorks.attributetypes import IDENTIFIER, QUASI_IDENTIFIER
 from PETWorks.attributetypes import INSENSITIVE_ATTRIBUTE, SENSITIVE_ATTRIBUTE
 
 from py4j.java_gateway import JavaGateway
+from py4j.java_collections import JavaArray
 
 PATH_TO_ARX_LIBRARY = "arx/lib/libarx-3.9.0.jar"
 gateway = JavaGateway.launch_gateway(
@@ -31,7 +32,7 @@ def loadDataFromCsv(path: PathLike, charset: Charset, delimiter: str) -> Data:
 
 def loadDataHierarchy(
     path: PathLike, charset: Charset, delimiter: str
-) -> dict[str, Hierarchy]:
+) -> dict[str, JavaArray]:
     hierarchies = {}
     for filename in listdir(path):
         result = re.match(".*hierarchy_(.*?).csv", filename)
@@ -52,7 +53,7 @@ def loadDataHierarchy(
 
 def setDataHierarchies(
     data: Data,
-    hierarchies: Dict[str, Hierarchy],
+    hierarchies: Dict[str, JavaArray],
     attributeTypes: Dict[str, str],
 ) -> None:
     for attributeName, attributeType in attributeTypes.items():
@@ -62,12 +63,10 @@ def setDataHierarchies(
                     attributeName, hierarchies[attributeName]
                 )
 
-        javaAttributeType = None
-        if attributeType == IDENTIFIER:
+        if attributeType == QUASI_IDENTIFIER:
+            continue
+        elif attributeType == IDENTIFIER:
             javaAttributeType = AttributeType.IDENTIFYING_ATTRIBUTE
-
-        elif attributeType == QUASI_IDENTIFIER:
-            pass
         elif attributeType == SENSITIVE_ATTRIBUTE:
             javaAttributeType = AttributeType.INSENSITIVE_ATTRIBUTE
         elif attributeType == INSENSITIVE_ATTRIBUTE:
@@ -75,10 +74,7 @@ def setDataHierarchies(
         else:
             raise ValueError(f"Unexpected attribute type: {attributeType}")
 
-        if attributeType != QUASI_IDENTIFIER:
-            data.getDefinition().setAttributeType(
-                attributeName, javaAttributeType
-            )
+        data.getDefinition().setAttributeType(attributeName, javaAttributeType)
 
 
 def getQiNames(dataHandle: str) -> list[str]:
@@ -97,7 +93,7 @@ def getQiIndices(dataHandle: str) -> list[int]:
     return qiIndices
 
 
-def findAnonymousLevel(hierarchy: Hierarchy, value: str) -> int:
+def findAnonymousLevel(hierarchy: JavaArray, value: str) -> int:
     for hierarchyRow in hierarchy:
         for level in range(len(hierarchyRow)):
             if hierarchyRow[level] == value:
@@ -106,7 +102,7 @@ def findAnonymousLevel(hierarchy: Hierarchy, value: str) -> int:
 
 
 def getAnonymousLevels(
-    anonymizedSubset: Data, hierarchies: dict[str, Hierarchy]
+    anonymizedSubset: Data, hierarchies: dict[str, JavaArray]
 ) -> list[int]:
     subsetDataFrame = getDataFrame(anonymizedSubset.getHandle())
     subsetRowNum = len(subsetDataFrame)

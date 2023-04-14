@@ -7,6 +7,7 @@ from typing import Dict
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
 
+
 def measureDPresence(
     populationTable: pd.DataFrame,
     sampleTable: pd.DataFrame,
@@ -40,17 +41,12 @@ def measureDPresence(
 def validateDPresence(
     deltaValues: list[float], dMin: float, dMax: float
 ) -> bool:
-    return all(
-        round(dMax, 5) >= round(value, 5) >= round(dMin, 5)
-        for value in deltaValues
-    )
+    return all(dMax >= value >= dMin for value in deltaValues)
 
 
-def PETValidation(original, sample, _, dataHierarchy, **other):
-    dMin = float(other["dMin"])
-    dMax = float(other["dMax"])
-    attributeTypes = other.get("attributeTypes", None)
-
+def PETValidation(
+    original, sample, _, dataHierarchy, attributeTypes, dMin, dMax
+):
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, StandardCharsets.UTF_8, ";"
     )
@@ -74,6 +70,8 @@ def PETValidation(original, sample, _, dataHierarchy, **other):
     deltaValues = measureDPresence(
         populationDataFrame, sampleDataFrame, attributeTypes
     )
-    fullFillDPresence = validateDPresence(deltaValues, dMin, dMax)
+    fullfillDPresence = validateDPresence(
+        deltaValues, float(dMin), float(dMax)
+    )
 
-    return {"dMin": dMin, "dMax": dMax, "d-presence": fullFillDPresence}
+    return {"dMin": dMin, "dMax": dMax, "d-presence": fullfillDPresence}
