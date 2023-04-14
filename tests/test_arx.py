@@ -4,6 +4,7 @@ from PETWorks.arx import loadDataFromCsv, loadDataHierarchy, setDataHierarchies
 from PETWorks.arx import gateway, Data, Hierarchy
 from typing import Dict
 import pytest
+from py4j.java_collections import JavaArray
 
 
 StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
@@ -41,7 +42,7 @@ def arxDataAdult(DATASET_PATH_ADULT) -> Data:
 
 
 @pytest.fixture(scope="module")
-def arxHierarchyAdult(DATASET_PATH_ADULT) -> Dict[str, Hierarchy]:
+def arxHierarchyAdult(DATASET_PATH_ADULT) -> Dict[str, JavaArray]:
     return loadDataHierarchy(
         DATASET_PATH_ADULT["dataHierarchy"], StandardCharsets.UTF_8, ";"
     )
