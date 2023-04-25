@@ -1,11 +1,18 @@
-import pandas as pd
-from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
-from PETWorks.arx import setDataHierarchies, getDataFrame, getQiNames
-from PETWorks.arx import getAnonymousLevels, applyAnonymousLevels
-from PETWorks.attributetypes import QUASI_IDENTIFIER
 from typing import Dict
 
-StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
+import pandas as pd
+
+from PETWorks.arx import (
+    JavaApi,
+    applyAnonymousLevels,
+    getAnonymousLevels,
+    getDataFrame,
+    loadDataFromCsv,
+    loadDataHierarchy,
+    setDataHierarchies,
+)
+from PETWorks.attributetypes import QUASI_IDENTIFIER
+
 
 def measureDPresence(
     populationTable: pd.DataFrame,
@@ -40,40 +47,45 @@ def measureDPresence(
 def validateDPresence(
     deltaValues: list[float], dMin: float, dMax: float
 ) -> bool:
-    return all(
-        round(dMax, 5) >= round(value, 5) >= round(dMin, 5)
-        for value in deltaValues
-    )
+    return all(dMax >= value >= dMin for value in deltaValues)
 
 
-def PETValidation(original, sample, _, dataHierarchy, **other):
-    dMin = float(other["dMin"])
-    dMax = float(other["dMax"])
-    attributeTypes = other.get("attributeTypes", None)
-
+def PETValidation(
+    original, sample, _, dataHierarchy, attributeTypes, dMin, dMax
+):
+    javaApi = JavaApi()
     dataHierarchy = loadDataHierarchy(
-        dataHierarchy, StandardCharsets.UTF_8, ";"
+        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
     originalPopulationData = loadDataFromCsv(
-        original, StandardCharsets.UTF_8, ";"
+        original, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+    anonymizedSampleData = loadDataFromCsv(
+        sample, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    anonymizedSampleData = loadDataFromCsv(sample, StandardCharsets.UTF_8, ";")
-
-    setDataHierarchies(originalPopulationData, dataHierarchy, attributeTypes)
-    setDataHierarchies(anonymizedSampleData, dataHierarchy, attributeTypes)
+    setDataHierarchies(
+        originalPopulationData, dataHierarchy, attributeTypes, javaApi
+    )
+    setDataHierarchies(
+        anonymizedSampleData, dataHierarchy, attributeTypes, javaApi
+    )
 
     anonymousLevels = getAnonymousLevels(anonymizedSampleData, dataHierarchy)
-    anonymizedPopulationDataHandle = applyAnonymousLevels(
-        originalPopulationData, anonymousLevels
+    anonymizedPopulation = applyAnonymousLevels(
+        originalPopulationData,
+        anonymousLevels,
+        dataHierarchy,
+        attributeTypes,
+        javaApi,
     )
 
-    populationDataFrame = getDataFrame(anonymizedPopulationDataHandle)
-    sampleDataFrame = getDataFrame(anonymizedSampleData.getHandle())
+    populationDataFrame = getDataFrame(anonymizedPopulation)
+    sampleDataFrame = getDataFrame(anonymizedSampleData)
 
     deltaValues = measureDPresence(
         populationDataFrame, sampleDataFrame, attributeTypes
     )
-    fullFillDPresence = validateDPresence(deltaValues, dMin, dMax)
+    fulfillDPresence = validateDPresence(deltaValues, float(dMin), float(dMax))
 
-    return {"dMin": dMin, "dMax": dMax, "d-presence": fullFillDPresence}
+    return {"dMin": dMin, "dMax": dMax, "d-presence": fulfillDPresence}
