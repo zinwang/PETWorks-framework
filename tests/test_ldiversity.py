@@ -32,24 +32,24 @@ def testMeasureLDiversity(attributeTypesForInpatient):
     dataFrame.columns = (
         dataFrame.columns.str.strip()
     )
-    deltaValues = measureLDiversity(
+    lValues = measureLDiversity(
         dataFrame,
         attributeTypesForInpatient,
     )
 
-    assert set(deltaValues) == {3, 3, 3}
+    assert set(lValues) == {3, 3, 3}
 
 
 def testValidateLDiversityFulfilled():
-    l = 4
+    lLimit = 4
     lValues = [4, 6, 7]
-    assert validateLDiversity(lValues, l) is True
+    assert validateLDiversity(lValues, lLimit) is True
 
 
 def testValidateLDiversityNotFulfilled():
-    l = 6
+    lLimit = 6
     lValues = [3, 4, 6]
-    assert validateLDiversity(lValues, l) is False
+    assert validateLDiversity(lValues, lLimit) is False
 
 
 def testPETValidationFulfilled(attributeTypesForInpatient):
@@ -58,9 +58,9 @@ def testPETValidationFulfilled(attributeTypesForInpatient):
         ANONYMIZED_DATA_PATH,
         "l-diversity",
         attributeTypes=attributeTypesForInpatient,
-        l=3
+        lLimit=3
     )
-    assert result["l"] == 3
+    assert result["lLimit"] == 3
     assert result["fulfill l-diversity"] is True
 
 
@@ -70,7 +70,7 @@ def testPETValidationNotFulfilled(attributeTypesForInpatient):
         ANONYMIZED_DATA_PATH,
         "l-diversity",
         attributeTypes=attributeTypesForInpatient,
-        l=5
+        lLimit=5
     )
-    assert result["l"] == 5
+    assert result["lLimit"] == 5
     assert result["fulfill l-diversity"] is False

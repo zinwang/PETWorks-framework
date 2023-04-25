@@ -230,7 +230,7 @@ def calculateThresholds(
         "k": [],
         "d": [],
         "t": [],
-        "l": [],
+        "lLimit": [],
         "profitability": [],
         "ambiguity": [],
         "precision": [],
@@ -261,6 +261,7 @@ def calculateThresholds(
                     values.append(jsonObj[metric])
 
     effectiveResults["k"] = [int(element) for element in effectiveResults["k"]]
+    effectiveResults["lLimit"] = [int(element) for element in effectiveResults["lLimit"]]
 
     thresholds = {}
     for metric, values in effectiveResults.items():

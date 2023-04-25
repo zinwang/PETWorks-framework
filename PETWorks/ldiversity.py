@@ -38,13 +38,13 @@ def measureLDiversity(
 
 
 def validateLDiversity(
-        lValues: list[int], l: int
+        lValues: list[int], lLimit: int
 ) -> bool:
-    return all(value >= l for value in lValues)
+    return all(value >= lLimit for value in lValues)
 
 
 def PETValidation(
-        original, sample, _, attributeTypes, l
+        original, sample, _, attributeTypes, lLimit
 ):
     javaApi = JavaApi()
     anonymizedData = loadDataFromCsv(
@@ -56,6 +56,6 @@ def PETValidation(
     lValues = measureLDiversity(
         anonymizedDataFrame, attributeTypes
     )
-    fulfillLDiversity = validateLDiversity(lValues, l)
+    fulfillLDiversity = validateLDiversity(lValues, lLimit)
 
-    return {"l": l, "fulfill l-diversity": fulfillLDiversity}
+    return {"lLimit": lLimit, "fulfill l-diversity": fulfillLDiversity}
