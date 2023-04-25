@@ -230,6 +230,7 @@ def calculateThresholds(
         "k": [],
         "d": [],
         "t": [],
+        "l": [],
         "profitability": [],
         "ambiguity": [],
         "precision": [],
