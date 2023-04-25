@@ -10,6 +10,7 @@ import PETWorks.kanonymity as KAnonymity
 import PETWorks.dpresence as DPresence
 import PETWorks.profitability as Profitability
 import PETWorks.tcloseness as TCloseness
+import PETWorks.ldiversity as LDiversity
 from web.generate import generateWebView
 
 HISTORY = "images/history.png"
@@ -41,6 +42,8 @@ def PETValidation(recover, origin, tech, **keywordArgs):
         return Profitability.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "t-closeness":
         return TCloseness.PETValidation(recover, origin, tech, **keywordArgs)
+    elif tech == "l-diversity":
+        return LDiversity.PETValidation(recover, origin, tech, **keywordArgs)
 
 
 def report(result, format):
