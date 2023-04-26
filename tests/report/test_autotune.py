@@ -76,4 +76,4 @@ def testCalculateThresholds(tmp_path):
     assert len(thresholds) == 9
     assert thresholds["k"] == [0, 50, 50, 100]
     assert thresholds["d"] == [0, 0.5, 0.5, 1]
-    assert thresholds["lLimit"] == [1, 25, 50, 100]
+    assert thresholds["l"] == [1, 25, 50, 100]

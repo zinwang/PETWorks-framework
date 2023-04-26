@@ -25,13 +25,17 @@ def PETValidation(recover, origin, tech, **keywordArgs):
     if tech == "FL":
         return FL.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "ReidentificationRisk":
-        return ReidentificationRisk.PETValidation(recover, origin, tech, **keywordArgs)
+        return ReidentificationRisk.PETValidation(
+            recover, origin, tech, **keywordArgs
+        )
     elif tech == "Ambiguity":
         return Ambiguity.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "Precision":
         return Precision.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "Non-Uniform Entropy":
-        return NonUniformEntropy.PETValidation(recover, origin, tech, **keywordArgs)
+        return NonUniformEntropy.PETValidation(
+            recover, origin, tech, **keywordArgs
+        )
     elif tech == "AECS":
         return AECS.PETValidation(recover, origin, tech)
     elif tech == "k-anonymity":
@@ -39,7 +43,9 @@ def PETValidation(recover, origin, tech, **keywordArgs):
     elif tech == "d-presence":
         return DPresence.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "profitability":
-        return Profitability.PETValidation(recover, origin, tech, **keywordArgs)
+        return Profitability.PETValidation(
+            recover, origin, tech, **keywordArgs
+        )
     elif tech == "t-closeness":
         return TCloseness.PETValidation(recover, origin, tech, **keywordArgs)
     elif tech == "l-diversity":
@@ -52,7 +58,6 @@ def report(result, format):
         return
 
     if format == "web":
-
         originPath = "images/original_image.png"
         recoverPath = "images/recovered_image.png"
         result["origin"].save(originPath)

@@ -2,19 +2,13 @@ from typing import Dict
 
 import pandas as pd
 
-from PETWorks.arx import (
-    JavaApi,
-    getDataFrame,
-    loadDataFromCsv,
-)
 from PETWorks.attributetypes import QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
 
 def measureLDiversity(
-        anonymizedData: pd.DataFrame,
-        attributeTypes: Dict[str, str],
+    anonymizedData: pd.DataFrame,
+    attributeTypes: Dict[str, str],
 ) -> list[int]:
-
     qis = []
     sensitiveAttributes = []
     lValues = []
@@ -26,36 +20,28 @@ def measureLDiversity(
             sensitiveAttributes.append(attribute)
 
     for index in range(len(sensitiveAttributes)):
-        columns = qis + sensitiveAttributes[: index] + sensitiveAttributes[index + 1:]
+        columns = (
+            qis
+            + sensitiveAttributes[:index]
+            + sensitiveAttributes[index + 1:]
+        )
         groups = anonymizedData.groupby(columns)
 
         sensitiveAttribute = sensitiveAttributes[index]
-        lValues += [
-            group[sensitiveAttribute].nunique() for _, group in groups
-        ]
+        lValues += [group[sensitiveAttribute].nunique() for _, group in groups]
 
     return lValues
 
 
-def validateLDiversity(
-        lValues: list[int], lLimit: int
-) -> bool:
-    return all(value >= lLimit for value in lValues)
+def validateLDiversity(lValues: list[int], l: int) -> bool:
+    return all(value >= l for value in lValues)
 
 
-def PETValidation(
-        original, sample, _, attributeTypes, lLimit
-):
-    javaApi = JavaApi()
-    anonymizedData = loadDataFromCsv(
-        sample, javaApi.StandardCharsets.UTF_8, ";", javaApi
-    )
+def PETValidation(original, anonymized, _, attributeTypes, l):
 
-    anonymizedDataFrame = getDataFrame(anonymizedData)
+    anonymizedDataFrame = pd.read_csv(anonymized, sep=";")
 
-    lValues = measureLDiversity(
-        anonymizedDataFrame, attributeTypes
-    )
-    fulfillLDiversity = validateLDiversity(lValues, lLimit)
+    lValues = measureLDiversity(anonymizedDataFrame, attributeTypes)
+    fulfillLDiversity = validateLDiversity(lValues, l)
 
-    return {"lLimit": lLimit, "fulfill l-diversity": fulfillLDiversity}
+    return {"l": l, "fulfill l-diversity": fulfillLDiversity}

@@ -19,7 +19,7 @@ def attributeTypesForInpatient() -> Dict[str, str]:
         "zipcode": QUASI_IDENTIFIER,
         "age": QUASI_IDENTIFIER,
         "nationality": QUASI_IDENTIFIER,
-        "condition": SENSITIVE_ATTRIBUTE
+        "condition": SENSITIVE_ATTRIBUTE,
     }
     return attributeTypes
 
@@ -29,9 +29,7 @@ def testMeasureLDiversity(attributeTypesForInpatient):
         ANONYMIZED_DATA_PATH, skipinitialspace=True, sep=r";"
     )
 
-    dataFrame.columns = (
-        dataFrame.columns.str.strip()
-    )
+    dataFrame.columns = dataFrame.columns.str.strip()
     lValues = measureLDiversity(
         dataFrame,
         attributeTypesForInpatient,
@@ -41,15 +39,15 @@ def testMeasureLDiversity(attributeTypesForInpatient):
 
 
 def testValidateLDiversityFulfilled():
-    lLimit = 4
+    l = 4
     lValues = [4, 6, 7]
-    assert validateLDiversity(lValues, lLimit) is True
+    assert validateLDiversity(lValues, l) is True
 
 
 def testValidateLDiversityNotFulfilled():
-    lLimit = 6
+    l = 6
     lValues = [3, 4, 6]
-    assert validateLDiversity(lValues, lLimit) is False
+    assert validateLDiversity(lValues, l) is False
 
 
 def testPETValidationFulfilled(attributeTypesForInpatient):
@@ -58,9 +56,9 @@ def testPETValidationFulfilled(attributeTypesForInpatient):
         ANONYMIZED_DATA_PATH,
         "l-diversity",
         attributeTypes=attributeTypesForInpatient,
-        lLimit=3
+        l=3,
     )
-    assert result["lLimit"] == 3
+    assert result["l"] == 3
     assert result["fulfill l-diversity"] is True
 
 
@@ -70,7 +68,7 @@ def testPETValidationNotFulfilled(attributeTypesForInpatient):
         ANONYMIZED_DATA_PATH,
         "l-diversity",
         attributeTypes=attributeTypesForInpatient,
-        lLimit=5
+        l=5,
     )
-    assert result["lLimit"] == 5
+    assert result["l"] == 5
     assert result["fulfill l-diversity"] is False
