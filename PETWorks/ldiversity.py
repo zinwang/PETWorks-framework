@@ -33,8 +33,8 @@ def measureLDiversity(
     return lValues
 
 
-def validateLDiversity(lValues: list[int], l: int) -> bool:
-    return all(value >= l for value in lValues)
+def validateLDiversity(lValues: list[int], lLimit: int) -> bool:
+    return all(value >= lLimit for value in lValues)
 
 
 def PETValidation(original, anonymized, _, attributeTypes, l):

@@ -124,7 +124,7 @@ class Metrics:
             default=1,
         )
 
-        l = min(measureLDiversity(anonymizedDataFrame, attributeTypes))
+        lLimit = min(measureLDiversity(anonymizedDataFrame, attributeTypes))
 
         profitability = _measureProfitabilityPayoffNoAttack(
             anonymizedDataFrame, qiNames, 4, 200000 / len(anonymizedDataFrame)
@@ -138,7 +138,7 @@ class Metrics:
             k=k,
             d=d,
             t=t,
-            l=l,
+            l=lLimit,
             profitability=profitability,
         )
 

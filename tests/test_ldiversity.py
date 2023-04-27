@@ -39,15 +39,15 @@ def testMeasureLDiversity(attributeTypesForInpatient):
 
 
 def testValidateLDiversityFulfilled():
-    l = 4
+    lLimit = 4
     lValues = [4, 6, 7]
-    assert validateLDiversity(lValues, l) is True
+    assert validateLDiversity(lValues, lLimit) is True
 
 
 def testValidateLDiversityNotFulfilled():
-    l = 6
+    lLimit = 6
     lValues = [3, 4, 6]
-    assert validateLDiversity(lValues, l) is False
+    assert validateLDiversity(lValues, lLimit) is False
 
 
 def testPETValidationFulfilled(attributeTypesForInpatient):
