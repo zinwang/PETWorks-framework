@@ -4,23 +4,17 @@ from PETWorks.arx import (
     Data,
     loadDataFromCsv,
     loadDataHierarchy,
+    setDataHierarchies,
     JavaApi,
     UtilityMetrics,
 )
-
-
-def _setDataHierarchies(
-    data: Data, hierarchies: Dict[str, List[List[str]]]
-) -> None:
-    for attributeName, hierarchy in hierarchies.items():
-        data.getDefinition().setAttributeType(attributeName, hierarchy)
 
 
 def _measureAmbiguity(original: Data, anonymized: Data) -> float:
     return UtilityMetrics.evaluate(original, anonymized).ambiguity
 
 
-def PETValidation(original, anonymized, _, dataHierarchy, **other):
+def PETValidation(original, anonymized, _, dataHierarchy, attributeTypes):
     javaApi = JavaApi()
 
     dataHierarchy = loadDataHierarchy(
@@ -34,8 +28,8 @@ def PETValidation(original, anonymized, _, dataHierarchy, **other):
         anonymized, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    _setDataHierarchies(original, dataHierarchy)
-    _setDataHierarchies(anonymized, dataHierarchy)
+    setDataHierarchies(original, dataHierarchy, attributeTypes, javaApi)
+    setDataHierarchies(anonymized, dataHierarchy, attributeTypes, javaApi)
 
     ambiguity = _measureAmbiguity(original, anonymized)
     return {"ambiguity": ambiguity}

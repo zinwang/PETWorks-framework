@@ -147,6 +147,12 @@ def setDataHierarchies(
     javaApi: JavaApi,
 ) -> None:
     for attributeName, attributeType in attributeTypes.items():
+        if not hierarchies:
+            data.getDefinition().setAttributeType(
+                attributeName, javaApi.Hierarchy.create()
+            )
+            continue
+
         if attributeName in hierarchies.keys():
             if attributeType == QUASI_IDENTIFIER:
                 data.getDefinition().setAttributeType(

@@ -11,16 +11,12 @@ def _measurePrecision(original: Data, anonymized: Data) -> float:
     return UtilityMetrics.evaluate(original, anonymized).precision
 
 
-def PETValidation(original, anonymized, _, dataHierarchy, **other):
+def PETValidation(original, anonymized, _, dataHierarchy, attributeTypes):
     javaApi = JavaApi()
 
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
-
-    attributeTypes = {
-        attributeName: QUASI_IDENTIFIER for attributeName in dataHierarchy
-    }
 
     original = loadDataFromCsv(
         original, javaApi.StandardCharsets.UTF_8, ";", javaApi
