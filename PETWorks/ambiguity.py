@@ -1,61 +1,41 @@
-from typing import List
+from typing import Dict, List
 
-from PETWorks.arx import Data, gateway, loadDataFromCsv, loadDataHierarchy
-from PETWorks.attributetypes import IDENTIFIER, INSENSITIVE_ATTRIBUTE
-from PETWorks.attributetypes import QUASI_IDENTIFIER
-
-StandardCharsets = gateway.jvm.java.nio.charset.StandardCharsets
-Hierarchy = gateway.jvm.org.deidentifier.arx.AttributeType.Hierarchy
-AttributeType = gateway.jvm.org.deidentifier.arx.AttributeType
+from PETWorks.arx import (
+    Data,
+    loadDataFromCsv,
+    loadDataHierarchy,
+    JavaApi,
+    UtilityMetrics,
+)
 
 
 def _setDataHierarchies(
-    data: Data, hierarchies: dict[str, List[List[str]]], attributeTypes: dict
+    data: Data, hierarchies: Dict[str, List[List[str]]]
 ) -> None:
     for attributeName, hierarchy in hierarchies.items():
-        if not attributeTypes:
-            data.getDefinition().setAttributeType(attributeName, hierarchy)
-            continue
-
-        attributeType = attributeTypes.get(attributeName)
-
-        if attributeType == QUASI_IDENTIFIER:
-            data.getDefinition().setAttributeType(attributeName, hierarchy)
-
-        if attributeType == IDENTIFIER:
-            data.getDefinition().setAttributeType(
-                attributeName, AttributeType.IDENTIFYING_ATTRIBUTE
-            )
-
-        if attributeType == INSENSITIVE_ATTRIBUTE:
-            data.getDefinition().setAttributeType(
-                attributeName, AttributeType.INSENSITIVE_ATTRIBUTE
-            )
+        data.getDefinition().setAttributeType(attributeName, hierarchy)
 
 
 def _measureAmbiguity(original: Data, anonymized: Data) -> float:
-    utility = (
-        original.getHandle()
-        .getStatistics()
-        .getQualityStatistics(anonymized.getHandle())
-    )
-
-    ambiguity = utility.getAmbiguity().getValue()
-    return ambiguity
+    return UtilityMetrics.evaluate(original, anonymized).ambiguity
 
 
 def PETValidation(original, anonymized, _, dataHierarchy, **other):
-    attributeTypes = other.get("attributeTypes", None)
+    javaApi = JavaApi()
 
     dataHierarchy = loadDataHierarchy(
-        dataHierarchy, StandardCharsets.UTF_8, ";"
+        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    original = loadDataFromCsv(original, StandardCharsets.UTF_8, ";")
-    anonymized = loadDataFromCsv(anonymized, StandardCharsets.UTF_8, ";")
+    original = loadDataFromCsv(
+        original, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+    anonymized = loadDataFromCsv(
+        anonymized, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
 
-    _setDataHierarchies(original, dataHierarchy, attributeTypes)
-    _setDataHierarchies(anonymized, dataHierarchy, attributeTypes)
+    _setDataHierarchies(original, dataHierarchy)
+    _setDataHierarchies(anonymized, dataHierarchy)
 
     ambiguity = _measureAmbiguity(original, anonymized)
     return {"ambiguity": ambiguity}

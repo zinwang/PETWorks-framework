@@ -224,6 +224,81 @@ $ python3 d-presence.py
 ```
 
 
+#### Compute the Profitability
+```python
+from PETWorks import PETValidation, report
+from PETWorks.attributetypes import QUASI_IDENTIFIER, INSENSITIVE_ATTRIBUTE
+
+origin = "data/delta.csv"
+anonymized = "data/delta_anonymized.csv"
+dataHierarchy = "data/delta_hierarchy"
+
+attributeTypes = {
+    "zip": QUASI_IDENTIFIER,
+    "age": QUASI_IDENTIFIER,
+    "nationality": QUASI_IDENTIFIER,
+    "salary-class": INSENSITIVE_ATTRIBUTE
+}
+
+result = PETValidation(
+    origin,
+    anonymized,
+    "profitability",
+    dataHierarchy=dataHierarchy,
+    attributeTypes=attributeTypes,
+    allowAttack=True,
+    adversaryCost=4,
+    adversaryGain=300,
+    publisherLost=300,
+    publisherBenefit=1200
+)
+report(result, "json")
+```
+
+Execution Result
+```python
+$ python3 profitability.py
+{
+    "allow attack": true,
+    "adversary's cost": 4,
+    "adversary's gain": 300,
+    "publisher's loss": 300,
+    "publisher's benefit": 1200,
+    "profitability": true
+}
+```
+
+
+#### Compute the l-diversity
+```python
+from PETWorks import PETValidation, report
+from PETWorks.attributetypes import SENSITIVE_ATTRIBUTE, QUASI_IDENTIFIER
+
+anonymized = "data/inpatient_anonymized.csv"
+
+attributeTypes = {
+    "zipcode": QUASI_IDENTIFIER,
+    "age": QUASI_IDENTIFIER,
+    "nationality": QUASI_IDENTIFIER,
+    "condition": SENSITIVE_ATTRIBUTE
+}
+
+result = PETValidation(
+    None, anonymized, "l-diversity", attributeTypes=attributeTypes, l=3
+)
+report(result, "json")
+```
+
+Execution Result
+```
+$ python3 l-diversity.py
+{
+    "l": 3,
+    "fulfill l-diversity": true
+}
+```
+
+
 
 ### How it works?
 | Module                    | Description                                                                                                                           |
