@@ -1,4 +1,9 @@
-from PETWorks.attributetypes import IDENTIFIER, QUASI_IDENTIFIER, INSENSITIVE_ATTRIBUTE, SENSITIVE_ATTRIBUTE
+from PETWorks.attributetypes import (
+    IDENTIFIER,
+    QUASI_IDENTIFIER,
+    INSENSITIVE_ATTRIBUTE,
+    SENSITIVE_ATTRIBUTE,
+)
 from typing import Dict
 import pytest
 
@@ -14,6 +19,7 @@ DATASET_PATHS = [
 @pytest.fixture(scope="session")
 def DATASET_PATH_ADULT():
     return DATASET_PATHS[0]
+
 
 @pytest.fixture(scope="session")
 def attributeTypesForAdult() -> Dict[str, str]:

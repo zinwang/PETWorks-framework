@@ -9,5 +9,5 @@ def testPETValidation(DATASET_PATH_ADULT, attributeTypesForAdult):
             "AECS",
             attributeTypes=attributeTypesForAdult,
         )["AECS"]
-        == 0.9992930131052006
+        == 0.991558195882348
     )
