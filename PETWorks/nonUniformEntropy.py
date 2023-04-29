@@ -1,6 +1,11 @@
-from PETWorks.arx import Data, loadDataFromCsv, loadDataHierarchy
-from PETWorks.arx import JavaApi, UtilityMetrics, setDataHierarchies
-from PETWorks.attributetypes import QUASI_IDENTIFIER
+from PETWorks.arx import (
+    Data,
+    JavaApi,
+    UtilityMetrics,
+    loadDataFromCsv,
+    loadDataHierarchy,
+    setDataHierarchies,
+)
 
 
 def _measureNonUniformEntropy(original: Data, anonymized: Data) -> float:
@@ -13,7 +18,6 @@ def PETValidation(original, anonymized, _, dataHierarchy, attributeTypes):
     dataHierarchy = loadDataHierarchy(
         dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
-
 
     original = loadDataFromCsv(
         original, javaApi.StandardCharsets.UTF_8, ";", javaApi

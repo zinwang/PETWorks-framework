@@ -1,4 +1,10 @@
-from PETWorks.arx import Data, loadDataFromCsv, JavaApi, UtilityMetrics, setDataHierarchies
+from PETWorks.arx import (
+    Data,
+    loadDataFromCsv,
+    JavaApi,
+    UtilityMetrics,
+    setDataHierarchies,
+)
 
 
 def _measureAECS(original: Data, anonymized: Data) -> float:

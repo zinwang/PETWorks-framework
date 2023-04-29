@@ -1,10 +1,11 @@
-from PETWorks.arx import Data, loadDataFromCsv, loadDataHierarchy
 from PETWorks.arx import (
+    Data,
     JavaApi,
     UtilityMetrics,
+    loadDataFromCsv,
+    loadDataHierarchy,
     setDataHierarchies,
 )
-from PETWorks.attributetypes import QUASI_IDENTIFIER
 
 
 def _measurePrecision(original: Data, anonymized: Data) -> float:
