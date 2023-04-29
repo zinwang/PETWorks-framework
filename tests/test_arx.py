@@ -57,7 +57,7 @@ def testSetDataHierarchiesErrorAttributeTypes(
         )
 
 
-def testSetDataHierarchiesNoneHierarchies(
+def testSetDataHierarchiesNoHierarchies(
     arxDataAdult, attributeTypesForAdult, javaApi
 ):
     setDataHierarchies(arxDataAdult, None, attributeTypesForAdult, javaApi)
