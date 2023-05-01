@@ -4,8 +4,10 @@ import pandas as pd
 
 
 def _measureKAnonymity(anonymized: pd.DataFrame, qiNames: list[str]) -> int:
-    suppressedValues = ["*"]*len(qiNames)
-    anonymized = anonymized.loc[~anonymized[qiNames].isin(suppressedValues).all(axis=1)]
+    suppressedValues = ["*"] * len(qiNames)
+    anonymized = anonymized.loc[
+        ~anonymized[qiNames].isin(suppressedValues).all(axis=1)
+    ]
     return anonymized.groupby(qiNames).count().min().min()
 
 
