@@ -349,42 +349,16 @@ def applyAnonymousLevels(
 
     lattice = anonymizedResult.getLattice()
     node = lattice.getNode(levels)
-
-    return getAnonymizedData(
-        anonymizedResult,
-        node,
-        hierarchies,
-        attributeTypes,
-        javaApi
-    )
-
-
-def getAnonymizedData(
-    anonymizedResult: ARXResult,
-    node: ARXNode,
-    hierarchies: Dict[str, Hierarchy],
-    attributeTypes: Dict[str, str],
-    javaApi: JavaApi,
-) -> Data:
-    if node:
-        output = anonymizedResult.getOutput(node, True)
-    else:
-        output = anonymizedResult.getOutput(True)
-
-    if not output:
-        return None
-
     result = javaApi.Data.create(
-        output.iterator()
+        anonymizedResult.getOutput(node, True).iterator()
     )
-
     setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
     return result
 
 
 def arxAnonymize(
     originalData: Data,
-    dataHierarchy: Dict[str, Hierarchy],
+    hierarchies: Dict[str, Hierarchy],
     attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     privacyModels: List[JavaClass],
@@ -404,11 +378,8 @@ def arxAnonymize(
         utilityModel,
         float(maxSuppressionRate)
     )
-
-    return getAnonymizedData(
-        anonymizedResult,
-        None,
-        dataHierarchy,
-        attributeTypes,
-        javaApi,
+    result = javaApi.Data.create(
+        anonymizedResult.getOutput(True).iterator()
     )
+    setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
+    return result

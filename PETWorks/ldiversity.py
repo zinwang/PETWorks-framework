@@ -67,10 +67,10 @@ def PETAnonymization(
 
     setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
-    lDiversityModels = []
+    privacyModels = []
     for attributeName, attributeType in attributeTypes.items():
         if attributeType == SENSITIVE_ATTRIBUTE:
-            lDiversityModels.append(
+            privacyModels.append(
                 javaApi.DistinctLDiversity(attributeName, l)
             )
 
@@ -79,7 +79,7 @@ def PETAnonymization(
         dataHierarchy,
         attributeTypes,
         maxSuppressionRate,
-        lDiversityModels,
+        privacyModels,
         None,
         javaApi
     )
