@@ -77,7 +77,8 @@ def PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **ke
         return KAnonymity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
     if tech == "l-diversity":
         return LDiversity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
-
+    if tech == "d-presence":
+        return DPresence.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
 
 def output(data: pd.DataFrame, filePath: str) -> None:
     data.to_csv(filePath, index=False)

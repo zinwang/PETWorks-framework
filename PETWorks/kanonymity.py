@@ -1,4 +1,4 @@
-from PETWorks.arx import getAttributeNameByType, JavaApi, arxAnonymize, getDataFrame
+from PETWorks.arx import getAttributeNameByType, JavaApi, arxAnonymize, getDataFrame, loadDataFromCsv, loadDataHierarchy, setDataHierarchies
 import pandas as pd
 from typing import Dict
 
@@ -34,6 +34,15 @@ def PETAnonymization(
     k: int
 ) -> pd.DataFrame:
     javaApi = JavaApi()
+    originalData = loadDataFromCsv(
+        originalData, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    dataHierarchy = loadDataHierarchy(
+        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
     anonymizedData = arxAnonymize(
         originalData,

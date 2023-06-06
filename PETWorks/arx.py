@@ -250,6 +250,9 @@ def getAnonymousLevels(
 
 
 def getDataFrame(data: Data) -> pd.DataFrame:
+    if not data:
+        return pd.DataFrame()
+
     dataHandle = data.getHandle()
     rowNum = dataHandle.getNumRows()
     colNum = dataHandle.getNumColumns()
@@ -380,24 +383,14 @@ def getAnonymizedData(
 
 
 def arxAnonymize(
-    originalData,
-    dataHierarchy,
-    attributeTypes,
-    maxSuppressionRate,
-    privacyModels,
-    utilityModel,
-    javaApi,
+    originalData: Data,
+    dataHierarchy: Dict[str, Hierarchy],
+    attributeTypes: Dict[str, str],
+    maxSuppressionRate: float,
+    privacyModels: List[JavaClass],
+    utilityModel: JavaClass,
+    javaApi: JavaClass,
 ) -> Data:
-
-    dataHierarchy = loadDataHierarchy(
-        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
-    )
-
-    originalData = loadDataFromCsv(
-        originalData, javaApi.StandardCharsets.UTF_8, ";", javaApi
-    )
-
-    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
     for attributeName, attributeType in attributeTypes.items():
         if attributeType == SENSITIVE_ATTRIBUTE:

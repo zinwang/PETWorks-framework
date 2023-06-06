@@ -2,7 +2,7 @@ from typing import Dict
 
 import pandas as pd
 
-from PETWorks.arx import JavaApi, arxAnonymize, getDataFrame
+from PETWorks.arx import JavaApi, arxAnonymize, getDataFrame, loadDataFromCsv, loadDataHierarchy, setDataHierarchies
 from PETWorks.attributetypes import QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
 
@@ -57,9 +57,17 @@ def PETAnonymization(
         l: int
 ) -> pd.DataFrame:
     javaApi = JavaApi()
+    originalData = loadDataFromCsv(
+        originalData, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    dataHierarchy = loadDataHierarchy(
+        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
     lDiversityModels = []
-
     for attributeName, attributeType in attributeTypes.items():
         if attributeType == SENSITIVE_ATTRIBUTE:
             lDiversityModels.append(
