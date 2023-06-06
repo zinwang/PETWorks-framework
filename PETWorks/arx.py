@@ -29,6 +29,7 @@ ARXConfiguration = JavaClass
 KAnonymity = JavaClass
 ARXAnonymizer = JavaClass
 ARXResult = JavaClass
+ARXNode = JavaClass
 AttributeType = JavaClass
 Int = JavaClass
 
@@ -41,6 +42,10 @@ javaApiTable = {
     "DefaultHierarchy": "jvm.org.deidentifier.arx.AttributeType.Hierarchy.DefaultHierarchy",
     "ARXConfiguration": "jvm.org.deidentifier.arx.ARXConfiguration",
     "KAnonymity": "jvm.org.deidentifier.arx.criteria.KAnonymity",
+    "DistinctLDiversity": "jvm.org.deidentifier.arx.criteria.DistinctLDiversity",
+    "DPresence": "jvm.org.deidentifier.arx.criteria.DPresence",
+    "OrderedDistanceTCloseness": "jvm.org.deidentifier.arx.criteria.OrderedDistanceTCloseness",
+    "HierarchicalDistanceTCloseness": "jvm.org.deidentifier.arx.criteria.HierarchicalDistanceTCloseness",
     "ARXAnonymizer": "jvm.org.deidentifier.arx.ARXAnonymizer",
     "AttributeType": "jvm.org.deidentifier.arx.AttributeType",
     "ARXPopulationModel": "jvm.org.deidentifier.arx.ARXPopulationModel",
@@ -313,11 +318,12 @@ def anonymizeData(
 
     try:
         anonymizer = javaApi.ARXAnonymizer()
-        anonymizedData = anonymizer.anonymize(original, arxConfig)
+        anonymizedResult = anonymizer.anonymize(original, arxConfig)
     except Py4JJavaError as e:
         raise e
 
-    return anonymizedData
+    return anonymizedResult
+
 
 
 def applyAnonymousLevels(
@@ -334,21 +340,77 @@ def applyAnonymousLevels(
     privacyModels = [javaApi.KAnonymity(1)]
 
     try:
-        anonymizedData = anonymizeData(original, privacyModels, javaApi)
+        anonymizedResult = anonymizeData(original, privacyModels, javaApi)
     except Py4JJavaError:
         return
 
-    lattice = anonymizedData.getLattice()
+    lattice = anonymizedResult.getLattice()
     node = lattice.getNode(levels)
 
-    output = anonymizedData.getOutput(node, True)
+    return getAnonymizedData(
+        anonymizedResult,
+        node,
+        hierarchies,
+        attributeTypes,
+        javaApi
+    )
+
+
+def getAnonymizedData(
+    anonymizedResult: ARXResult,
+    node: ARXNode,
+    hierarchies: Dict[str, Hierarchy],
+    attributeTypes: Dict[str, str],
+    javaApi: JavaApi,
+) -> Data:
+    if node:
+        output = anonymizedResult.getOutput(node, True)
+    else:
+        output = anonymizedResult.getOutput(True)
+
     if not output:
         return None
 
     result = javaApi.Data.create(
-        anonymizedData.getOutput(node, True).iterator()
+        output.iterator()
     )
 
     setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
-
     return result
+
+
+def arxAnonymize(
+    originalData,
+    dataHierarchy,
+    attributeTypes,
+    maxSuppressionRate,
+    privacyModels,
+    utilityModel,
+    javaApi,
+) -> Data:
+
+    dataHierarchy = loadDataHierarchy(
+        dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    originalData = loadDataFromCsv(
+        originalData, javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+
+    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
+
+    anonymizedResult = anonymizeData(
+        originalData,
+        privacyModels,
+        javaApi,
+        utilityModel,
+        float(maxSuppressionRate)
+    )
+
+    return getAnonymizedData(
+        anonymizedResult,
+        None,
+        dataHierarchy,
+        attributeTypes,
+        javaApi,
+    )

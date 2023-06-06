@@ -1,5 +1,7 @@
 import json
 
+import pandas as pd
+
 import PETWorks.federatedlearning as FL
 import PETWorks.reidentificationrisk as ReidentificationRisk
 import PETWorks.ambiguity as Ambiguity
@@ -68,3 +70,12 @@ def report(result, format):
         with open("output.html", "w") as f:
             f.write(html)
     return
+
+
+def PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs):
+    if tech == "k-anonymity":
+        return KAnonymity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+
+
+def output(data: pd.DataFrame, filePath: str) -> None:
+    data.to_csv(filePath, index=False)
