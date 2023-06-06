@@ -399,6 +399,11 @@ def arxAnonymize(
 
     setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
+    for attributeName, attributeType in attributeTypes.items():
+        if attributeType == SENSITIVE_ATTRIBUTE:
+            originalData.getDefinition().setAttributeType(
+                attributeName, javaApi.AttributeType.SENSITIVE_ATTRIBUTE)
+
     anonymizedResult = anonymizeData(
         originalData,
         privacyModels,

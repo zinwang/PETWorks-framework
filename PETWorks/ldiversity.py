@@ -2,6 +2,7 @@ from typing import Dict
 
 import pandas as pd
 
+from PETWorks.arx import JavaApi, arxAnonymize, getDataFrame
 from PETWorks.attributetypes import QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
 
@@ -45,3 +46,34 @@ def PETValidation(original, anonymized, _, attributeTypes, l):
     fulfillLDiversity = validateLDiversity(lValues, l)
 
     return {"l": l, "fulfill l-diversity": fulfillLDiversity}
+
+
+def PETAnonymization(
+        originalData: str,
+        _,
+        dataHierarchy: str,
+        attributeTypes: Dict,
+        maxSuppressionRate: float,
+        l: int
+) -> pd.DataFrame:
+    javaApi = JavaApi()
+
+    lDiversityModels = []
+
+    for attributeName, attributeType in attributeTypes.items():
+        if attributeType == SENSITIVE_ATTRIBUTE:
+            lDiversityModels.append(
+                javaApi.DistinctLDiversity(attributeName, l)
+            )
+
+    anonymizedData = arxAnonymize(
+        originalData,
+        dataHierarchy,
+        attributeTypes,
+        maxSuppressionRate,
+        lDiversityModels,
+        None,
+        javaApi
+    )
+
+    return getDataFrame(anonymizedData)

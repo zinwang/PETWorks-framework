@@ -75,6 +75,8 @@ def report(result, format):
 def PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs):
     if tech == "k-anonymity":
         return KAnonymity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+    if tech == "l-diversity":
+        return LDiversity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
 
 
 def output(data: pd.DataFrame, filePath: str) -> None:
