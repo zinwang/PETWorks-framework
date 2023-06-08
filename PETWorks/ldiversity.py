@@ -2,7 +2,14 @@ from typing import Dict
 
 import pandas as pd
 
-from PETWorks.arx import JavaApi, arxAnonymize, getDataFrame, loadDataFromCsv, loadDataHierarchy, setDataHierarchies
+from PETWorks.arx import (
+    JavaApi,
+    arxAnonymize,
+    getDataFrame,
+    loadDataFromCsv,
+    loadDataHierarchy,
+    setDataHierarchies,
+)
 from PETWorks.attributetypes import QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
 
@@ -39,7 +46,6 @@ def validateLDiversity(lValues: list[int], lLimit: int) -> bool:
 
 
 def PETValidation(original, anonymized, _, attributeTypes, l):
-
     anonymizedDataFrame = pd.read_csv(anonymized, sep=";")
 
     lValues = measureLDiversity(anonymizedDataFrame, attributeTypes)
@@ -49,12 +55,12 @@ def PETValidation(original, anonymized, _, attributeTypes, l):
 
 
 def PETAnonymization(
-        originalData: str,
-        _,
-        dataHierarchy: str,
-        attributeTypes: Dict,
-        maxSuppressionRate: float,
-        l: int
+    originalData: str,
+    _,
+    dataHierarchy: str,
+    attributeTypes: Dict,
+    maxSuppressionRate: float,
+    l: int,
 ) -> pd.DataFrame:
     javaApi = JavaApi()
     originalData = loadDataFromCsv(
@@ -70,9 +76,7 @@ def PETAnonymization(
     privacyModels = []
     for attributeName, attributeType in attributeTypes.items():
         if attributeType == SENSITIVE_ATTRIBUTE:
-            privacyModels.append(
-                javaApi.DistinctLDiversity(attributeName, l)
-            )
+            privacyModels.append(javaApi.DistinctLDiversity(attributeName, l))
 
     anonymizedData = arxAnonymize(
         originalData,
@@ -81,7 +85,7 @@ def PETAnonymization(
         maxSuppressionRate,
         privacyModels,
         None,
-        javaApi
+        javaApi,
     )
 
     return getDataFrame(anonymizedData)

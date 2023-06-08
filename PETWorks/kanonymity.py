@@ -1,4 +1,13 @@
-from PETWorks.arx import getAttributeNameByType, JavaApi, arxAnonymize, getDataFrame, loadDataFromCsv, loadDataHierarchy, setDataHierarchies
+from PETWorks.arx import (
+    getAttributeNameByType,
+    JavaApi,
+    arxAnonymize,
+    getDataFrame,
+    loadDataFromCsv,
+    loadDataHierarchy,
+    setDataHierarchies,
+)
+from PETWorks.attributetypes import QUASI_IDENTIFIER
 import pandas as pd
 from typing import Dict
 
@@ -31,7 +40,7 @@ def PETAnonymization(
     dataHierarchy: str,
     attributeTypes: Dict,
     maxSuppressionRate: float,
-    k: int
+    k: int,
 ) -> pd.DataFrame:
     javaApi = JavaApi()
     originalData = loadDataFromCsv(
@@ -51,7 +60,7 @@ def PETAnonymization(
         maxSuppressionRate,
         [javaApi.KAnonymity(k)],
         None,
-        javaApi
+        javaApi,
     )
 
     return getDataFrame(anonymizedData)

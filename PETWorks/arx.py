@@ -9,7 +9,7 @@ from PETWorks.attributetypes import (
     IDENTIFIER,
     INSENSITIVE_ATTRIBUTE,
     QUASI_IDENTIFIER,
-    SENSITIVE_ATTRIBUTE
+    SENSITIVE_ATTRIBUTE,
 )
 
 
@@ -32,6 +32,7 @@ ARXResult = JavaClass
 ARXNode = JavaClass
 AttributeType = JavaClass
 Int = JavaClass
+Metric = JavaClass
 
 javaApiTable = {
     "Data": "jvm.org.deidentifier.arx.Data",
@@ -46,6 +47,8 @@ javaApiTable = {
     "DPresence": "jvm.org.deidentifier.arx.criteria.DPresence",
     "OrderedDistanceTCloseness": "jvm.org.deidentifier.arx.criteria.OrderedDistanceTCloseness",
     "HierarchicalDistanceTCloseness": "jvm.org.deidentifier.arx.criteria.HierarchicalDistanceTCloseness",
+    "createLossMetric": "jvm.org.deidentifier.arx.metric.Metric.createLossMetric",
+    "createPrecomputedEntropyMetric": "jvm.org.deidentifier.arx.metric.Metric.createPrecomputedEntropyMetric",
     "ARXAnonymizer": "jvm.org.deidentifier.arx.ARXAnonymizer",
     "AttributeType": "jvm.org.deidentifier.arx.AttributeType",
     "ARXPopulationModel": "jvm.org.deidentifier.arx.ARXPopulationModel",
@@ -53,7 +56,6 @@ javaApiTable = {
     "DataSubset": "jvm.org.deidentifier.arx.DataSubset",
     "HashGroupifyEntry": "jvm.org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry",
     "HashSet": "jvm.java.util.HashSet",
-    "DPresence": "jvm.org.deidentifier.arx.criteria.DPresence",
     "Int": "jvm.int",
     "String": "jvm.java.lang.String",
     "new_array": "new_array",
@@ -325,8 +327,9 @@ def anonymizeData(
     except Py4JJavaError as e:
         raise e
 
-    return anonymizedResult
+    original.getHandle().release()
 
+    return anonymizedResult
 
 
 def applyAnonymousLevels(
@@ -365,21 +368,20 @@ def arxAnonymize(
     utilityModel: JavaClass,
     javaApi: JavaClass,
 ) -> Data:
-
     for attributeName, attributeType in attributeTypes.items():
         if attributeType == SENSITIVE_ATTRIBUTE:
             originalData.getDefinition().setAttributeType(
-                attributeName, javaApi.AttributeType.SENSITIVE_ATTRIBUTE)
+                attributeName, javaApi.AttributeType.SENSITIVE_ATTRIBUTE
+            )
 
     anonymizedResult = anonymizeData(
         originalData,
         privacyModels,
         javaApi,
         utilityModel,
-        float(maxSuppressionRate)
+        float(maxSuppressionRate),
     )
-    result = javaApi.Data.create(
-        anonymizedResult.getOutput(True).iterator()
-    )
+    originalData.getHandle().release()
+    result = javaApi.Data.create(anonymizedResult.getOutput(True).iterator())
     setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
     return result

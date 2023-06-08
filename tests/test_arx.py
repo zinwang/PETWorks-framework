@@ -1,5 +1,6 @@
 from typing import Dict
 
+import pandas as pd
 import pytest
 from py4j.java_collections import JavaArray
 
@@ -9,7 +10,11 @@ from PETWorks.arx import (
     loadDataFromCsv,
     loadDataHierarchy,
     setDataHierarchies,
+    arxAnonymize,
+    anonymizeData,
+    getDataFrame,
 )
+from PETWorks.attributetypes import QUASI_IDENTIFIER, SENSITIVE_ATTRIBUTE
 
 
 @pytest.fixture(scope="session")
@@ -140,4 +145,191 @@ def testSetDataHierarchies(
     assert (
         dataDefinition.getAttributeType("workclass").toString()
         == "INSENSITIVE_ATTRIBUTE"
+    )
+
+
+def testAnonymizeData(
+    arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+):
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+    )
+
+    assert (
+        anonymizeData(
+            arxDataAdult,
+            [javaApi.KAnonymity(5)],
+            javaApi,
+            javaApi.createPrecomputedEntropyMetric(0.1, True),
+            0.04,
+        )
+        .getGlobalOptimum()
+        .getHighestScore()
+        .toString()
+        == "255559.85455731067"
+    )
+
+
+def testArxAnonymizeWithKAnonymity(
+    arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+):
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+    )
+
+    result = getDataFrame(
+        arxAnonymize(
+            arxDataAdult,
+            arxHierarchyAdult,
+            attributeTypesForAdultAllQi,
+            0.04,
+            [javaApi.KAnonymity(5)],
+            javaApi.createLossMetric(),
+            javaApi,
+        )
+    )
+
+    assert result.equals(
+        pd.read_csv("data/KAnonymization.csv", sep=";", skipinitialspace=True)
+    )
+
+
+def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
+    attributeTypes = {
+        "age": QUASI_IDENTIFIER,
+        "education": QUASI_IDENTIFIER,
+        "marital-status": QUASI_IDENTIFIER,
+        "native-country": QUASI_IDENTIFIER,
+        "occupation": SENSITIVE_ATTRIBUTE,
+        "race": QUASI_IDENTIFIER,
+        "salary-class": QUASI_IDENTIFIER,
+        "sex": QUASI_IDENTIFIER,
+        "workclass": QUASI_IDENTIFIER,
+    }
+
+    result = getDataFrame(
+        arxAnonymize(
+            arxDataAdult,
+            arxHierarchyAdult,
+            attributeTypes,
+            0.04,
+            [javaApi.DistinctLDiversity("occupation", 5)],
+            javaApi.createLossMetric(),
+            javaApi,
+        )
+    )
+
+    assert result.equals(
+        pd.read_csv("data/LAnonymization.csv", sep=";", skipinitialspace=True)
+    )
+
+
+def testArxAnonymizeWithDPresence(
+    arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+):
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+    )
+
+    subsetData = loadDataFromCsv(
+        "data/adult10.csv", javaApi.StandardCharsets.UTF_8, ";", javaApi
+    )
+    dataSubset = javaApi.DataSubset.create(arxDataAdult, subsetData)
+
+    result = getDataFrame(
+        arxAnonymize(
+            arxDataAdult,
+            arxHierarchyAdult,
+            attributeTypesForAdultAllQi,
+            0.05,
+            [javaApi.DPresence(0.0, 0.2, dataSubset)],
+            javaApi.createLossMetric(),
+            javaApi,
+        )
+    )
+
+    assert result.equals(
+        pd.read_csv("data/DAnonymization.csv", sep=";", skipinitialspace=True)
+    )
+
+
+def testArxAnonymizeWithOrderedDistanceTCloseness(
+    arxDataAdult, arxHierarchyAdult, javaApi
+):
+    attributeTypes = {
+        "age": SENSITIVE_ATTRIBUTE,
+        "education": QUASI_IDENTIFIER,
+        "marital-status": QUASI_IDENTIFIER,
+        "native-country": QUASI_IDENTIFIER,
+        "occupation": QUASI_IDENTIFIER,
+        "race": QUASI_IDENTIFIER,
+        "salary-class": QUASI_IDENTIFIER,
+        "sex": QUASI_IDENTIFIER,
+        "workclass": QUASI_IDENTIFIER,
+    }
+
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi
+    )
+
+    result = getDataFrame(
+        arxAnonymize(
+            arxDataAdult,
+            arxHierarchyAdult,
+            attributeTypes,
+            0.04,
+            [javaApi.OrderedDistanceTCloseness("age", 0.2)],
+            javaApi.createLossMetric(),
+            javaApi,
+        )
+    )
+    result["age"] = result["age"].astype(int)
+    assert result.equals(
+        pd.read_csv(
+            "data/OrderedTAnonymization.csv", sep=";", skipinitialspace=True
+        )
+    )
+
+
+def testArxAnonymizeWithHierarchicalDistanceTCloseness(
+    arxDataAdult, arxHierarchyAdult, javaApi
+):
+    attributeTypes = {
+        "age": QUASI_IDENTIFIER,
+        "education": QUASI_IDENTIFIER,
+        "marital-status": QUASI_IDENTIFIER,
+        "native-country": QUASI_IDENTIFIER,
+        "occupation": SENSITIVE_ATTRIBUTE,
+        "race": QUASI_IDENTIFIER,
+        "salary-class": QUASI_IDENTIFIER,
+        "sex": QUASI_IDENTIFIER,
+        "workclass": QUASI_IDENTIFIER,
+    }
+
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi
+    )
+
+    result = getDataFrame(
+        arxAnonymize(
+            arxDataAdult,
+            arxHierarchyAdult,
+            attributeTypes,
+            0.04,
+            [
+                javaApi.HierarchicalDistanceTCloseness(
+                    "occupation", 0.2, arxHierarchyAdult.get("occupation")
+                )
+            ],
+            javaApi.createLossMetric(),
+            javaApi,
+        )
+    )
+
+    assert result.equals(
+        pd.read_csv(
+            "data/HierarchicalTAnonymization.csv",
+            sep=";",
+            skipinitialspace=True,
+        )
     )

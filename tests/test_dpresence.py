@@ -4,6 +4,7 @@ from PETWorks.dpresence import (
     measureDPresence,
     validateDPresence,
     PETValidation,
+    PETAnonymization,
 )
 
 from typing import Dict
@@ -94,3 +95,20 @@ def testPETValidationNotFulfilled(attributeTypesForPresence):
     assert result["dMin"] == 1 / 2
     assert result["dMax"] == 1 / 3
     assert result["d-presence"] is False
+
+
+def testPETAnonymization(DATASET_PATH_ADULT, attributeTypesForAdultAllQi):
+    result = PETAnonymization(
+        DATASET_PATH_ADULT["originalData"],
+        "d-presence",
+        DATASET_PATH_ADULT["dataHierarchy"],
+        attributeTypesForAdultAllQi,
+        maxSuppressionRate=0.05,
+        dMin=0.0,
+        dMax=0.2,
+        subsetData="data/adult10.csv",
+    )
+
+    assert result.equals(
+        pd.read_csv("data/DAnonymization.csv", sep=";", skipinitialspace=True)
+    )

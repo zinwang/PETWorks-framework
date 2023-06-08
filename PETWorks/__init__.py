@@ -72,15 +72,42 @@ def report(result, format):
     return
 
 
-def PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs):
+def PETAnonymization(
+    originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs
+):
     if tech == "k-anonymity":
-        return KAnonymity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+        return KAnonymity.PETAnonymization(
+            originalDataPath,
+            tech,
+            dataHierarchy,
+            attributeTypes,
+            **keywordArgs
+        )
     if tech == "l-diversity":
-        return LDiversity.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+        return LDiversity.PETAnonymization(
+            originalDataPath,
+            tech,
+            dataHierarchy,
+            attributeTypes,
+            **keywordArgs
+        )
     if tech == "d-presence":
-        return DPresence.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+        return DPresence.PETAnonymization(
+            originalDataPath,
+            tech,
+            dataHierarchy,
+            attributeTypes,
+            **keywordArgs
+        )
     if tech == "t-closeness":
-        return TCloseness.PETAnonymization(originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs)
+        return TCloseness.PETAnonymization(
+            originalDataPath,
+            tech,
+            dataHierarchy,
+            attributeTypes,
+            **keywordArgs
+        )
+
 
 def output(data: pd.DataFrame, filePath: str) -> None:
-    data.to_csv(filePath, index=False)
+    data.to_csv(filePath, index=False, sep=";")
