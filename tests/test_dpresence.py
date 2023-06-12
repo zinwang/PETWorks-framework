@@ -11,7 +11,6 @@ from typing import Dict
 import pytest
 import pandas as pd
 
-
 ORIGINAL_POPULATION_DATA_PATH = "data/presence.csv"
 ANONYMIZED_POPULATION_DATA_PATH = "data/presence_transformed.csv"
 ANONYMIZED_SAMPLE_DATA_PATH = "data/presence_anonymized.csv"
@@ -108,7 +107,7 @@ def testPETAnonymization(DATASET_PATH_ADULT, attributeTypesForAdultAllQi):
         dMax=0.2,
         subsetData="data/adult10.csv",
     )
-
+    result["age"] = result["age"].astype(float)
     assert result.equals(
         pd.read_csv("data/DAnonymization.csv", sep=";", skipinitialspace=True)
     )
