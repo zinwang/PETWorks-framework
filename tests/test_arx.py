@@ -90,6 +90,19 @@ def testSetDataHierarchiesNoHierarchies(arxDataAdult, attributeTypesForAdult, ja
         == "INSENSITIVE_ATTRIBUTE"
     )
 
+def testSetDataHierarchiesSensitiveEnabled(
+        arxDataAdult, arxHierarchyAdult, javaApi
+):
+    attributeTypes = {
+        "age": SENSITIVE_ATTRIBUTE,
+    }
+    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
+
+    dataDefinition = arxDataAdult.getDefinition()
+    assert (
+            dataDefinition.getAttributeType("age").toString()
+            == "SENSITIVE_ATTRIBUTE"
+    )
 
 def testSetDataHierarchies(
     arxDataAdult, arxHierarchyAdult, attributeTypesForAdult, javaApi
@@ -173,6 +186,11 @@ def testArxAnonymizeWithKAnonymity(
 
 
 def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
+    
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
+    )
+    
     attributeTypes = {
         "age": QUASI_IDENTIFIER,
         "education": QUASI_IDENTIFIER,
@@ -206,7 +224,7 @@ def testArxAnonymizeWithDPresence(
     arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
 ):
     setDataHierarchies(
-        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
+        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi, True
     )
 
     subsetData = loadDataFromCsv(
@@ -246,7 +264,7 @@ def testArxAnonymizeWithOrderedDistanceTCloseness(
         "workclass": QUASI_IDENTIFIER,
     }
 
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi)
+    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
 
     result = getDataFrame(
         arxAnonymize(
@@ -280,7 +298,7 @@ def testArxAnonymizeWithHierarchicalDistanceTCloseness(
         "workclass": QUASI_IDENTIFIER,
     }
 
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi)
+    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
 
     result = getDataFrame(
         arxAnonymize(
