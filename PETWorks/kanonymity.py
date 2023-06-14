@@ -1,7 +1,7 @@
 from PETWorks.arx import (
     getAttributeNameByType,
     JavaApi,
-    arxAnonymize,
+    anonymizeData,
     getDataFrame,
     loadDataFromCsv,
     loadDataHierarchy,
@@ -52,12 +52,14 @@ def PETAnonymization(
 
     setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
 
-    anonymizedData = arxAnonymize(
+    anonymizedResult = anonymizeData(
         originalData,
-        maxSuppressionRate,
         [javaApi.KAnonymity(k)],
-        None,
         javaApi,
+        None,
+        float(maxSuppressionRate),
     )
-
+    anonymizedData = javaApi.Data.create(
+        anonymizedResult.getOutput(True).iterator()
+    )
     return getDataFrame(anonymizedData)

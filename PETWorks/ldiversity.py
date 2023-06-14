@@ -4,7 +4,7 @@ import pandas as pd
 
 from PETWorks.arx import (
     JavaApi,
-    arxAnonymize,
+    anonymizeData,
     getDataFrame,
     loadDataFromCsv,
     loadDataHierarchy,
@@ -79,12 +79,14 @@ def PETAnonymization(
         if attributeType == SENSITIVE_ATTRIBUTE:
             privacyModels.append(javaApi.DistinctLDiversity(attributeName, l))
 
-    anonymizedData = arxAnonymize(
+    anonymizedResult = anonymizeData(
         originalData,
-        maxSuppressionRate,
         privacyModels,
-        None,
         javaApi,
+        None,
+        float(maxSuppressionRate),
     )
-
+    anonymizedData = javaApi.Data.create(
+        anonymizedResult.getOutput(True).iterator()
+    )
     return getDataFrame(anonymizedData)

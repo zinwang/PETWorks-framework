@@ -8,7 +8,7 @@ from PETWorks.arx import (
     setDataHierarchies,
     JavaApi,
     getDataFrame,
-    arxAnonymize,
+    anonymizeData,
 )
 from PETWorks.attributetypes import SENSITIVE_ATTRIBUTE, QUASI_IDENTIFIER
 import numpy as np
@@ -241,12 +241,14 @@ def PETAnonymization(
 
             privacyModels.append(tClosenessModel)
 
-    anonymizedData = arxAnonymize(
+    anonymizedResult = anonymizeData(
         originalData,
-        maxSuppressionRate,
         privacyModels,
-        None,
         javaApi,
+        None,
+        float(maxSuppressionRate),
     )
-
+    anonymizedData = javaApi.Data.create(
+        anonymizedResult.getOutput(True).iterator()
+    )
     return getDataFrame(anonymizedData)
