@@ -138,6 +138,11 @@ def testSetDataHierarchies(
         == "INSENSITIVE_ATTRIBUTE"
     )
 
+def testGetDataFrameWithNone():
+    assert getDataFrame(None).empty is True
+
+def testGetDataFrame(arxDataAdult):
+    assert len(getDataFrame(arxDataAdult)) == 30163
 
 def testAnonymizeData(
     arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
@@ -171,8 +176,6 @@ def testArxAnonymizeWithKAnonymity(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypesForAdultAllQi,
             0.04,
             [javaApi.KAnonymity(5)],
             javaApi.createLossMetric(),
@@ -206,8 +209,6 @@ def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [javaApi.DistinctLDiversity("occupation", 5)],
             javaApi.createLossMetric(),
@@ -235,8 +236,6 @@ def testArxAnonymizeWithDPresence(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypesForAdultAllQi,
             0.05,
             [javaApi.DPresence(0.0, 0.2, dataSubset)],
             javaApi.createLossMetric(),
@@ -269,8 +268,6 @@ def testArxAnonymizeWithOrderedDistanceTCloseness(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [javaApi.OrderedDistanceTCloseness("age", 0.2)],
             javaApi.createLossMetric(),
@@ -303,8 +300,6 @@ def testArxAnonymizeWithHierarchicalDistanceTCloseness(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [
                 javaApi.HierarchicalDistanceTCloseness(

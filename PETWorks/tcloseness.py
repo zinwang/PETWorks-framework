@@ -241,8 +241,6 @@ def PETAnonymization(
 
     anonymizedData = arxAnonymize(
         originalData,
-        dataHierarchy,
-        attributeTypes,
         maxSuppressionRate,
         privacyModels,
         None,
