@@ -56,9 +56,8 @@ def PETValidation(original, anonymized, _, attributeTypes, l):
 
 def PETAnonymization(
     originalData: str,
-    _,
     dataHierarchy: str,
-    attributeTypes: Dict,
+    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     l: int,
 ) -> pd.DataFrame:

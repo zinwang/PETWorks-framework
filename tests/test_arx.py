@@ -187,10 +187,6 @@ def testArxAnonymizeWithKAnonymity(
 
 def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
     
-    setDataHierarchies(
-        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
-    )
-    
     attributeTypes = {
         "age": QUASI_IDENTIFIER,
         "education": QUASI_IDENTIFIER,
@@ -202,6 +198,10 @@ def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
         "sex": QUASI_IDENTIFIER,
         "workclass": QUASI_IDENTIFIER,
     }
+
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
+    )
 
     result = getDataFrame(
         arxAnonymize(

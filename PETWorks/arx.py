@@ -380,7 +380,5 @@ def arxAnonymize(
         utilityModel,
         float(maxSuppressionRate),
     )
-    originalData.getHandle().release()
-    result = javaApi.Data.create(anonymizedResult.getOutput(True).iterator())
-    setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
-    return result
+
+    return javaApi.Data.create(anonymizedResult.getOutput(True).iterator())
