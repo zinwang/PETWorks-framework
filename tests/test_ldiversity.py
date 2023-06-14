@@ -89,7 +89,6 @@ def testPETAnonymization(DATASET_PATH_ADULT):
 
     result = PETAnonymization(
         DATASET_PATH_ADULT["originalData"],
-        "l-diversity",
         DATASET_PATH_ADULT["dataHierarchy"],
         attributeTypes,
         maxSuppressionRate=0.04,

@@ -99,7 +99,6 @@ def testPETValidationNotFulfilled(attributeTypesForPresence):
 def testPETAnonymization(DATASET_PATH_ADULT, attributeTypesForAdultAllQi):
     result = PETAnonymization(
         DATASET_PATH_ADULT["originalData"],
-        "d-presence",
         DATASET_PATH_ADULT["dataHierarchy"],
         attributeTypesForAdultAllQi,
         maxSuppressionRate=0.05,

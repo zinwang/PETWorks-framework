@@ -19,7 +19,6 @@ def testPETAnonymizationOrderedTCloseness(DATASET_PATH_ADULT):
 
     result = PETAnonymization(
         DATASET_PATH_ADULT["originalData"],
-        "t-closeness",
         DATASET_PATH_ADULT["dataHierarchy"],
         attributeTypes,
         maxSuppressionRate=0.04,
@@ -48,7 +47,6 @@ def testPETAnonymizationHierarchicalTCloseness(DATASET_PATH_ADULT):
 
     result = PETAnonymization(
         DATASET_PATH_ADULT["originalData"],
-        "t-closeness",
         DATASET_PATH_ADULT["dataHierarchy"],
         attributeTypes,
         maxSuppressionRate=0.04,

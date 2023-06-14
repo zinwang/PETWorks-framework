@@ -29,7 +29,6 @@ def testPETValidationNotFulfilled(DATASET_PATH_ADULT, attributeTypesForAdult):
 def testPETAnonymization(DATASET_PATH_ADULT, attributeTypesForAdultAllQi):
     result = PETAnonymization(
         DATASET_PATH_ADULT["originalData"],
-        "k-anonymity",
         DATASET_PATH_ADULT["dataHierarchy"],
         attributeTypesForAdultAllQi,
         maxSuppressionRate=0.04,
