@@ -153,7 +153,7 @@ def setDataHierarchies(
     hierarchies: Dict[str, JavaArray],
     attributeTypes: Dict[str, str],
     javaApi: JavaApi,
-    enableSensitiveAttribute: bool = False
+    enableSensitiveAttribute: bool = False,
 ) -> None:
     for attributeName, attributeType in attributeTypes.items():
         if not hierarchies:
@@ -361,22 +361,3 @@ def applyAnonymousLevels(
     )
     setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
     return result
-
-
-def arxAnonymize(
-    originalData: Data,
-    maxSuppressionRate: float,
-    privacyModels: List[JavaClass],
-    utilityModel: JavaClass,
-    javaApi: JavaClass,
-) -> Data:
-
-    anonymizedResult = anonymizeData(
-        originalData,
-        privacyModels,
-        javaApi,
-        utilityModel,
-        float(maxSuppressionRate),
-    )
-
-    return javaApi.Data.create(anonymizedResult.getOutput(True).iterator())

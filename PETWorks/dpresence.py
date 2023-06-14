@@ -10,7 +10,7 @@ from PETWorks.arx import (
     loadDataFromCsv,
     loadDataHierarchy,
     setDataHierarchies,
-    arxAnonymize,
+    anonymizeData,
 )
 from PETWorks.attributetypes import QUASI_IDENTIFIER
 
@@ -115,17 +115,17 @@ def PETAnonymization(
         subsetData, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    setDataHierarchies(
-        originalData, dataHierarchy, attributeTypes, javaApi
-    )
+    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
     dataSubset = javaApi.DataSubset.create(originalData, subsetData)
 
-    anonymizedData = arxAnonymize(
+    anonymizedResult = anonymizeData(
         originalData,
-        maxSuppressionRate,
         [javaApi.DPresence(dMin, dMax, dataSubset)],
-        None,
         javaApi,
+        None,
+        float(maxSuppressionRate),
     )
-
+    anonymizedData = javaApi.Data.create(
+        anonymizedResult.getOutput(True).iterator()
+    )
     return getDataFrame(anonymizedData)
