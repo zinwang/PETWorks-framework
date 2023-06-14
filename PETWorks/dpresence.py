@@ -94,9 +94,8 @@ def PETValidation(
 
 def PETAnonymization(
     originalData: str,
-    _,
     dataHierarchy: str,
-    attributeTypes: Dict,
+    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     dMin: float,
     dMax: float,

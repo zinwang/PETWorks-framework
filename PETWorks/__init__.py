@@ -73,36 +73,19 @@ def report(result, format):
 
 
 def PETAnonymization(
-    originalDataPath, tech, dataHierarchy, attributeTypes, **keywordArgs
+    originalData, tech, dataHierarchy, attributeTypes, **keywordArgs
 ):
     if tech == "k-anonymity":
-        return KAnonymity.PETAnonymization(
-            originalDataPath,
-            tech,
-            dataHierarchy,
-            attributeTypes,
-            **keywordArgs
-        )
-    if tech == "l-diversity":
-        return LDiversity.PETAnonymization(
-            originalDataPath,
-            tech,
-            dataHierarchy,
-            attributeTypes,
-            **keywordArgs
-        )
-    if tech == "d-presence":
-        return DPresence.PETAnonymization(
-            originalDataPath,
-            tech,
-            dataHierarchy,
-            attributeTypes,
-            **keywordArgs
-        )
-    if tech == "t-closeness":
-        return TCloseness.PETAnonymization(
-            originalDataPath,
-            tech,
+        anonymization = KAnonymity
+    elif tech == "l-diversity":
+        anonymization = LDiversity
+    elif tech == "d-presence":
+        anonymization = DPresence
+    elif tech == "t-closeness":
+        anonymization = TCloseness
+
+    return anonymization.PETAnonymization(
+            originalData,
             dataHierarchy,
             attributeTypes,
             **keywordArgs
