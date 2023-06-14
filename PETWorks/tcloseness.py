@@ -218,7 +218,7 @@ def PETAnonymization(
         dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi)
+    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi, True)
 
     privacyModels = []
     for attributeName, attributeType in attributeTypes.items():

@@ -153,6 +153,7 @@ def setDataHierarchies(
     hierarchies: Dict[str, JavaArray],
     attributeTypes: Dict[str, str],
     javaApi: JavaApi,
+    enableSensitiveAttribute: bool = False
 ) -> None:
     for attributeName, attributeType in attributeTypes.items():
         if not hierarchies:
@@ -170,7 +171,10 @@ def setDataHierarchies(
         elif attributeType == IDENTIFIER:
             javaAttributeType = javaApi.AttributeType.IDENTIFYING_ATTRIBUTE
         elif attributeType == SENSITIVE_ATTRIBUTE:
-            javaAttributeType = javaApi.AttributeType.INSENSITIVE_ATTRIBUTE
+            if enableSensitiveAttribute:
+                javaAttributeType = javaApi.AttributeType.SENSITIVE_ATTRIBUTE
+            else:
+                javaAttributeType = javaApi.AttributeType.INSENSITIVE_ATTRIBUTE
         elif attributeType == INSENSITIVE_ATTRIBUTE:
             javaAttributeType = javaApi.AttributeType.INSENSITIVE_ATTRIBUTE
         else:
@@ -368,11 +372,6 @@ def arxAnonymize(
     utilityModel: JavaClass,
     javaApi: JavaClass,
 ) -> Data:
-    for attributeName, attributeType in attributeTypes.items():
-        if attributeType == SENSITIVE_ATTRIBUTE:
-            originalData.getDefinition().setAttributeType(
-                attributeName, javaApi.AttributeType.SENSITIVE_ATTRIBUTE
-            )
 
     anonymizedResult = anonymizeData(
         originalData,
