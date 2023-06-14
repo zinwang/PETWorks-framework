@@ -199,9 +199,8 @@ def PETValidation(
 
 def PETAnonymization(
     originalData: str,
-    _,
     dataHierarchy: str,
-    attributeTypes: Dict,
+    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     t: float,
 ) -> pd.DataFrame:
@@ -218,7 +217,9 @@ def PETAnonymization(
         dataHierarchy, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        originalData, dataHierarchy, attributeTypes, javaApi, True
+    )
 
     privacyModels = []
     for attributeName, attributeType in attributeTypes.items():
@@ -242,8 +243,6 @@ def PETAnonymization(
 
     anonymizedData = arxAnonymize(
         originalData,
-        dataHierarchy,
-        attributeTypes,
         maxSuppressionRate,
         privacyModels,
         None,

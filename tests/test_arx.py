@@ -62,7 +62,9 @@ def testSetDataHierarchiesErrorAttributeTypes(
         )
 
 
-def testSetDataHierarchiesNoHierarchies(arxDataAdult, attributeTypesForAdult, javaApi):
+def testSetDataHierarchiesNoHierarchies(
+    arxDataAdult, attributeTypesForAdult, javaApi
+):
     setDataHierarchies(arxDataAdult, None, attributeTypesForAdult, javaApi)
     dataDefinition = arxDataAdult.getDefinition()
     maritalStatusHierarchy = dataDefinition.getHierarchy("marital-status")
@@ -74,40 +76,55 @@ def testSetDataHierarchiesNoHierarchies(arxDataAdult, attributeTypesForAdult, ja
     occupationHierarchy = dataDefinition.getHierarchy("occupation")
     assert len(occupationHierarchy) == 0
 
-    assert dataDefinition.getAttributeType("age").toString() == "IDENTIFYING_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("age").toString()
+        == "IDENTIFYING_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("education").toString()
         == "IDENTIFYING_ATTRIBUTE"
     )
-    assert dataDefinition.getAttributeType("race").toString() == "INSENSITIVE_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("race").toString()
+        == "INSENSITIVE_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("salary-class").toString()
         == "INSENSITIVE_ATTRIBUTE"
     )
-    assert dataDefinition.getAttributeType("sex").toString() == "INSENSITIVE_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("sex").toString()
+        == "INSENSITIVE_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("workclass").toString()
         == "INSENSITIVE_ATTRIBUTE"
     )
 
+
 def testSetDataHierarchiesSensitiveEnabled(
-        arxDataAdult, arxHierarchyAdult, javaApi
+    arxDataAdult, arxHierarchyAdult, javaApi
 ):
     attributeTypes = {
         "age": SENSITIVE_ATTRIBUTE,
     }
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
+    )
 
     dataDefinition = arxDataAdult.getDefinition()
     assert (
-            dataDefinition.getAttributeType("age").toString()
-            == "SENSITIVE_ATTRIBUTE"
+        dataDefinition.getAttributeType("age").toString()
+        == "SENSITIVE_ATTRIBUTE"
     )
+
 
 def testSetDataHierarchies(
     arxDataAdult, arxHierarchyAdult, attributeTypesForAdult, javaApi
 ):
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypesForAdult, javaApi)
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypesForAdult, javaApi
+    )
 
     dataDefinition = arxDataAdult.getDefinition()
     maritalStatusHierarchy = dataDefinition.getHierarchy("marital-status")
@@ -122,21 +139,38 @@ def testSetDataHierarchies(
     assert len(occupationHierarchy) == 14
     assert len(occupationHierarchy[0]) == 3
 
-    assert dataDefinition.getAttributeType("age").toString() == "IDENTIFYING_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("age").toString()
+        == "IDENTIFYING_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("education").toString()
         == "IDENTIFYING_ATTRIBUTE"
     )
-    assert dataDefinition.getAttributeType("race").toString() == "INSENSITIVE_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("race").toString()
+        == "INSENSITIVE_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("salary-class").toString()
         == "INSENSITIVE_ATTRIBUTE"
     )
-    assert dataDefinition.getAttributeType("sex").toString() == "INSENSITIVE_ATTRIBUTE"
+    assert (
+        dataDefinition.getAttributeType("sex").toString()
+        == "INSENSITIVE_ATTRIBUTE"
+    )
     assert (
         dataDefinition.getAttributeType("workclass").toString()
         == "INSENSITIVE_ATTRIBUTE"
     )
+
+
+def testGetDataFrameWithNone():
+    assert getDataFrame(None).empty is True
+
+
+def testGetDataFrame(arxDataAdult):
+    assert len(getDataFrame(arxDataAdult)) == 30162
 
 
 def testAnonymizeData(
@@ -171,8 +205,6 @@ def testArxAnonymizeWithKAnonymity(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypesForAdultAllQi,
             0.04,
             [javaApi.KAnonymity(5)],
             javaApi.createLossMetric(),
@@ -186,7 +218,6 @@ def testArxAnonymizeWithKAnonymity(
 
 
 def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
-    
     attributeTypes = {
         "age": QUASI_IDENTIFIER,
         "education": QUASI_IDENTIFIER,
@@ -206,8 +237,6 @@ def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [javaApi.DistinctLDiversity("occupation", 5)],
             javaApi.createLossMetric(),
@@ -224,7 +253,11 @@ def testArxAnonymizeWithDPresence(
     arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi
 ):
     setDataHierarchies(
-        arxDataAdult, arxHierarchyAdult, attributeTypesForAdultAllQi, javaApi, True
+        arxDataAdult,
+        arxHierarchyAdult,
+        attributeTypesForAdultAllQi,
+        javaApi,
+        True,
     )
 
     subsetData = loadDataFromCsv(
@@ -235,8 +268,6 @@ def testArxAnonymizeWithDPresence(
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypesForAdultAllQi,
             0.05,
             [javaApi.DPresence(0.0, 0.2, dataSubset)],
             javaApi.createLossMetric(),
@@ -264,13 +295,13 @@ def testArxAnonymizeWithOrderedDistanceTCloseness(
         "workclass": QUASI_IDENTIFIER,
     }
 
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
+    )
 
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [javaApi.OrderedDistanceTCloseness("age", 0.2)],
             javaApi.createLossMetric(),
@@ -279,7 +310,9 @@ def testArxAnonymizeWithOrderedDistanceTCloseness(
     )
     result["age"] = result["age"].astype(int)
     assert result.equals(
-        pd.read_csv("data/OrderedTAnonymization.csv", sep=";", skipinitialspace=True)
+        pd.read_csv(
+            "data/OrderedTAnonymization.csv", sep=";", skipinitialspace=True
+        )
     )
 
 
@@ -298,13 +331,13 @@ def testArxAnonymizeWithHierarchicalDistanceTCloseness(
         "workclass": QUASI_IDENTIFIER,
     }
 
-    setDataHierarchies(arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        arxDataAdult, arxHierarchyAdult, attributeTypes, javaApi, True
+    )
 
     result = getDataFrame(
         arxAnonymize(
             arxDataAdult,
-            arxHierarchyAdult,
-            attributeTypes,
             0.04,
             [
                 javaApi.HierarchicalDistanceTCloseness(

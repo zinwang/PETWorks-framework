@@ -94,9 +94,8 @@ def PETValidation(
 
 def PETAnonymization(
     originalData: str,
-    _,
     dataHierarchy: str,
-    attributeTypes: Dict,
+    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     dMin: float,
     dMax: float,
@@ -116,13 +115,13 @@ def PETAnonymization(
         subsetData, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        originalData, dataHierarchy, attributeTypes, javaApi
+    )
     dataSubset = javaApi.DataSubset.create(originalData, subsetData)
 
     anonymizedData = arxAnonymize(
         originalData,
-        dataHierarchy,
-        attributeTypes,
         maxSuppressionRate,
         [javaApi.DPresence(dMin, dMax, dataSubset)],
         None,

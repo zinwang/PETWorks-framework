@@ -365,8 +365,6 @@ def applyAnonymousLevels(
 
 def arxAnonymize(
     originalData: Data,
-    hierarchies: Dict[str, Hierarchy],
-    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     privacyModels: List[JavaClass],
     utilityModel: JavaClass,
@@ -380,7 +378,5 @@ def arxAnonymize(
         utilityModel,
         float(maxSuppressionRate),
     )
-    originalData.getHandle().release()
-    result = javaApi.Data.create(anonymizedResult.getOutput(True).iterator())
-    setDataHierarchies(result, hierarchies, attributeTypes, javaApi)
-    return result
+
+    return javaApi.Data.create(anonymizedResult.getOutput(True).iterator())
