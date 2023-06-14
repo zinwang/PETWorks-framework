@@ -186,7 +186,7 @@ def testArxAnonymizeWithKAnonymity(
 
 
 def testArxAnonymizeWithLDiversity(arxDataAdult, arxHierarchyAdult, javaApi):
-    
+
     attributeTypes = {
         "age": QUASI_IDENTIFIER,
         "education": QUASI_IDENTIFIER,

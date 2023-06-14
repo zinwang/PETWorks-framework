@@ -88,6 +88,7 @@ def PETAnonymization(
             originalData,
             dataHierarchy,
             attributeTypes,
+            maxSuppressionRate,
             **keywordArgs
         )
 
