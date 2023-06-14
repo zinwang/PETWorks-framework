@@ -73,7 +73,12 @@ def report(result, format):
 
 
 def PETAnonymization(
-    originalData, tech, dataHierarchy, attributeTypes, maxSuppressionRate, **keywordArgs
+    originalData,
+    tech,
+    dataHierarchy,
+    attributeTypes,
+    maxSuppressionRate,
+    **keywordArgs
 ):
     if tech == "k-anonymity":
         anonymization = KAnonymity
@@ -85,12 +90,12 @@ def PETAnonymization(
         anonymization = TCloseness
 
     return anonymization.PETAnonymization(
-            originalData,
-            dataHierarchy,
-            attributeTypes,
-            maxSuppressionRate,
-            **keywordArgs
-        )
+        originalData,
+        dataHierarchy,
+        attributeTypes,
+        maxSuppressionRate,
+        **keywordArgs
+    )
 
 
 def output(data: pd.DataFrame, filePath: str) -> None:

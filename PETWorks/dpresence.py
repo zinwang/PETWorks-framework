@@ -115,7 +115,9 @@ def PETAnonymization(
         subsetData, javaApi.StandardCharsets.UTF_8, ";", javaApi
     )
 
-    setDataHierarchies(originalData, dataHierarchy, attributeTypes, javaApi, True)
+    setDataHierarchies(
+        originalData, dataHierarchy, attributeTypes, javaApi, True
+    )
     dataSubset = javaApi.DataSubset.create(originalData, subsetData)
 
     anonymizedData = arxAnonymize(
