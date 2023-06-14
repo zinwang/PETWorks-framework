@@ -365,8 +365,6 @@ def applyAnonymousLevels(
 
 def arxAnonymize(
     originalData: Data,
-    hierarchies: Dict[str, Hierarchy],
-    attributeTypes: Dict[str, str],
     maxSuppressionRate: float,
     privacyModels: List[JavaClass],
     utilityModel: JavaClass,

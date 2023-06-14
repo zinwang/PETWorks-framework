@@ -120,8 +120,6 @@ def PETAnonymization(
 
     anonymizedData = arxAnonymize(
         originalData,
-        dataHierarchy,
-        attributeTypes,
         maxSuppressionRate,
         [javaApi.DPresence(dMin, dMax, dataSubset)],
         None,
