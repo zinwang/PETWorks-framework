@@ -71,8 +71,8 @@ def _computeHierarchicalDistance(
 
 
 def _computeEqualDistance(
-        dataDistribution: dict[str, float],
-        groupDistribution: dict[str, float],
+    dataDistribution: dict[str, float],
+    groupDistribution: dict[str, float],
 ) -> float:
     extraList = [
         float(groupDistribution.get(value, 0) - dataDistribution.get(value, 0))
@@ -120,7 +120,8 @@ def measureTCloseness(
     sensitiveHierarchy: np.chararray,
 ) -> float:
     dataDistribution = dict(
-        anonymizedData[sensitiveAttributeName].value_counts() / len(anonymizedData)
+        anonymizedData[sensitiveAttributeName].value_counts()
+        / len(anonymizedData)
     )
     anonymizedGroups = anonymizedData.groupby(qiNames)
 
